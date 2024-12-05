@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { Clipboard, Users } from "lucide-react";
+import { Clipboard, Users, FileText, Trophy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const EventDetails = () => {
@@ -36,6 +36,20 @@ const EventDetails = () => {
         .eq("event_id", eventId);
 
       if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: survey } = useQuery({
+    queryKey: ["survey", eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("surveys")
+        .select("*")
+        .eq("event_id", eventId)
+        .single();
+
+      if (error && error.code !== "PGRST116") throw error;
       return data;
     },
   });
@@ -102,7 +116,15 @@ const EventDetails = () => {
                     variant="outline"
                     onClick={() => navigate(`/e/${eventId}/lottery`)}
                   >
+                    <Trophy className="mr-2 h-4 w-4" />
                     Lottery
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/e/${eventId}/survey`)}
+                  >
+                    <FileText className="mr-2 h-4 w-4" />
+                    Survey
                   </Button>
                 </div>
                 <div className="divide-y">
@@ -134,13 +156,11 @@ const EventDetails = () => {
                     <p className="text-muted-foreground">{event.location}</p>
                   </div>
                 )}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate(`/e/${eventId}/survey`)}
-                  >
-                    View Survey
-                  </Button>
+                <div>
+                  <div className="font-medium">Survey Status</div>
+                  <p className="text-muted-foreground">
+                    {survey ? "Survey available" : "No survey created yet"}
+                  </p>
                 </div>
               </div>
             </CardContent>
