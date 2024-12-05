@@ -35,13 +35,6 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     enabled: !!event?.id,
     queryFn: async () => {
       console.log("Fetching participants for event:", event?.id);
-      const { data: winners } = await supabase
-        .from('lottery_winners')
-        .select('participant_id')
-        .eq('event_id', event.id);
-
-      const winnerIds = winners?.map(w => w.participant_id) || [];
-      
       const { data, error } = await supabase
         .from('participants')
         .select('id, nickname, email, attendance_mode')
@@ -52,13 +45,8 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
         return [];
       }
 
-      // Filter out winners after fetching all participants
-      const eligibleParticipants = winnerIds.length > 0 
-        ? data?.filter(p => !winnerIds.includes(p.id))
-        : data;
-
-      console.log("Eligible participants:", eligibleParticipants);
-      return eligibleParticipants || [];
+      console.log("All participants:", data);
+      return data || [];
     },
   });
 
