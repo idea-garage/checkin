@@ -11,25 +11,25 @@ export const AttendanceSelector = ({ value, onChange }: AttendanceSelectorProps)
     <div className="flex gap-2">
       <Button
         type="button"
-        onClick={() => onChange("inperson")}
-        variant={value === "inperson" ? "default" : "outline"}
+        onClick={() => onChange("in-person")}
+        variant={value === "in-person" ? "default" : "outline"}
         className={cn(
           "h-9 px-6",
-          value === "inperson" ? "bg-[#22C55E] hover:bg-[#16A34A]" : "bg-muted/50"
+          value === "in-person" ? "bg-[#22C55E] hover:bg-[#16A34A]" : "bg-muted/50"
         )}
       >
         In Person
       </Button>
       <Button
         type="button"
-        onClick={() => onChange("inperson")}
-        variant={value === "inperson" ? "default" : "outline"}
+        onClick={() => onChange("online")}
+        variant={value === "online" ? "default" : "outline"}
         className={cn(
           "h-9 px-6",
-          value === "inperson" ? "bg-[#22C55E] hover:bg-[#16A34A]" : "bg-muted/50"
+          value === "online" ? "bg-[#22C55E] hover:bg-[#16A34A]" : "bg-muted/50"
         )}
       >
-        inperson
+        Online
       </Button>
     </div>
   );

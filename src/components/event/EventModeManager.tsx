@@ -22,13 +22,13 @@ export const EventModeManager = ({
           <SelectValue placeholder="Select event mode" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="inperson">In Person Only</SelectItem>
-          <SelectItem value="inperson">inperson Only</SelectItem>
-          <SelectItem value="hybrid">Hybrid (inperson & In Person)</SelectItem>
+          <SelectItem value="in-person">In Person Only</SelectItem>
+          <SelectItem value="online">Online Only</SelectItem>
+          <SelectItem value="hybrid">Hybrid (Online & In Person)</SelectItem>
         </SelectContent>
       </Select>
       
-      {(mode === 'inperson' || mode === 'hybrid') && (
+      {(mode === 'online' || mode === 'hybrid') && (
         <Input
           value={broadcastUrl || ''}
           onChange={(e) => onBroadcastUrlChange(e.target.value)}

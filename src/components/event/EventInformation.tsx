@@ -33,9 +33,9 @@ export const EventInformation = ({
           <div>
             <div className="font-medium mb-1">Event Mode</div>
             <p className="text-muted-foreground flex items-center gap-2">
-              {mode === 'inperson' ? (
+              {mode === 'online' ? (
                 <Globe className="h-4 w-4" />
-              ) : mode === 'inperson' ? (
+              ) : mode === 'in-person' ? (
                 <MapPin className="h-4 w-4" />
               ) : (
                 <>
@@ -43,7 +43,7 @@ export const EventInformation = ({
                   <MapPin className="h-4 w-4" />
                 </>
               )}
-              {mode === 'inperson' ? 'inperson Only' : mode === 'inperson' ? 'In Person Only' : 'Hybrid'}
+              {mode === 'online' ? 'Online Only' : mode === 'in-person' ? 'In Person Only' : 'Hybrid'}
             </p>
           </div>
 
@@ -57,7 +57,7 @@ export const EventInformation = ({
                 className="text-primary hover:underline flex items-center gap-2"
               >
                 <Globe className="h-4 w-4" />
-                Join inperson Event
+                Join Online Event
               </a>
             </div>
           )}
