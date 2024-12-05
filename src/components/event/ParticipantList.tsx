@@ -4,6 +4,7 @@ import { Clipboard, Users, FileText, Trophy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ParticipantListProps {
   eventId: string;
