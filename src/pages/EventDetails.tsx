@@ -1,120 +1,148 @@
-import { useParams } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
-import { Users, ChartBar, Gift } from "lucide-react";
+import { Navbar } from "@/components/Navbar";
+import { useParams, useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { format } from "date-fns";
+import { Clipboard, Users } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 const EventDetails = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
-  // Example event data
-  const event = {
-    id: eventId,
-    name: "Tech Conference 2024",
-    date: "2024-03-15",
-    time: "10:00 AM",
-    location: "Virtual",
-    participants: [
-      { id: 1, nickname: "techie1", email: "techie1@example.com" },
-      { id: 2, nickname: "coder2", email: "coder2@example.com" },
-      { id: 3, nickname: "dev3", email: "dev3@example.com" },
-    ],
-    surveyResponses: 12,
-    totalParticipants: 25,
+  const { data: event, isLoading: isLoadingEvent } = useQuery({
+    queryKey: ["event", eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("id", eventId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: participants, isLoading: isLoadingParticipants } = useQuery({
+    queryKey: ["participants", eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("participants")
+        .select("*")
+        .eq("event_id", eventId);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const copyRegistrationLink = () => {
+    const link = `${window.location.origin}/e/${eventId}`;
+    navigator.clipboard.writeText(link);
+    toast({
+      title: "Link Copied",
+      description: "Registration link has been copied to clipboard",
+    });
   };
+
+  if (isLoadingEvent || isLoadingParticipants) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container py-8">
+          <div className="text-center">Loading event details...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container py-8">
+          <div className="text-center">Event not found</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container py-8">
-        <div className="max-w-5xl mx-auto">
-          <div className="flex justify-between items-center mb-8">
-            <div>
-              <h1 className="text-3xl font-bold">{event.name}</h1>
-              <p className="text-muted-foreground">
-                {event.date} at {event.time} • {event.location}
-              </p>
-            </div>
-            <div className="space-x-4">
-              <Button
-                variant="outline"
-                onClick={() => navigate(`/e/${eventId}/survey`)}
-              >
-                <ChartBar className="mr-2 h-4 w-4" />
-                View Survey
-              </Button>
-              <Button onClick={() => navigate(`/e/${eventId}/lottery`)}>
-                <Gift className="mr-2 h-4 w-4" />
-                Start Lottery
-              </Button>
-            </div>
-          </div>
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
+          <p className="text-muted-foreground">
+            {format(new Date(event.date), "MMMM d, yyyy")} at{" "}
+            {format(new Date(`2000-01-01T${event.time}`), "h:mm a")}
+          </p>
+        </div>
 
-          <div className="grid gap-6 md:grid-cols-3 mb-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Participants
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">
-                  {event.totalParticipants}
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Participants ({participants?.length || 0})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="flex gap-2">
+                  <Button onClick={copyRegistrationLink}>
+                    <Clipboard className="mr-2 h-4 w-4" />
+                    Copy Registration Link
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/e/${eventId}/lottery`)}
+                  >
+                    Lottery
+                  </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ChartBar className="h-5 w-5" />
-                  Survey Responses
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-3xl font-bold">{event.surveyResponses}</div>
-              </CardContent>
-            </Card>
-          </div>
+                <div className="divide-y">
+                  {participants?.map((participant) => (
+                    <div key={participant.id} className="py-3">
+                      <div className="font-medium">{participant.nickname}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {participant.email}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>
-              <CardTitle>Participant List</CardTitle>
+              <CardTitle>Event Details</CardTitle>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nickname</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {event.participants.map((participant) => (
-                    <TableRow key={participant.id}>
-                      <TableCell>{participant.nickname}</TableCell>
-                      <TableCell>{participant.email}</TableCell>
-                      <TableCell>
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                          Registered
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+              <div className="space-y-4">
+                {event.description && (
+                  <p className="text-muted-foreground">{event.description}</p>
+                )}
+                {event.location && (
+                  <div>
+                    <div className="font-medium">Location</div>
+                    <p className="text-muted-foreground">{event.location}</p>
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate(`/e/${eventId}/survey`)}
+                  >
+                    View Survey
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>

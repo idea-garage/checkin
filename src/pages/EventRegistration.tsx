@@ -5,21 +5,79 @@ import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const EventRegistration = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     nickname: "",
     email: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const { data: event } = useQuery({
+    queryKey: ["event", eventId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .eq("id", eventId)
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement registration logic
-    console.log("Registration data:", { eventId, ...formData });
-    navigate(`/e/${eventId}/success`);
+    
+    try {
+      const { error } = await supabase
+        .from("participants")
+        .insert([
+          {
+            event_id: eventId,
+            nickname: formData.nickname,
+            email: formData.email,
+          },
+        ]);
+
+      if (error) throw error;
+
+      toast({
+        title: "Registration Successful",
+        description: "You have been registered for the event!",
+      });
+
+      // Optionally redirect to a success page or survey
+      navigate(`/e/${eventId}/survey`);
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
+
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container py-8">
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">Loading event details...</p>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -28,7 +86,7 @@ const EventRegistration = () => {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>Event Registration</CardTitle>
+              <CardTitle>{event.name}</CardTitle>
               <CardDescription>
                 Register for this event by providing your details below
               </CardDescription>
