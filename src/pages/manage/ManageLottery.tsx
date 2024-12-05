@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { LotteryWinnerList } from "@/components/lottery/LotteryWinnerList";
 import { LotteryDrawer } from "@/components/lottery/LotteryDrawer";
+import { AttendanceMode } from "@/types/enums";
 
 const ManageLottery = () => {
   const { teamSlug, slug } = useParams();
@@ -17,25 +18,37 @@ const ManageLottery = () => {
 
   const { event, isLoadingEvent } = useEventQueries(teamSlug, slug);
 
+  console.log("Event data:", event); // Debug log
+
   // Fetch participants who haven't won yet
   const { data: eligibleParticipants, isLoading: isLoadingParticipants } = useQuery({
     queryKey: ['eligible-participants', event?.id],
     queryFn: async () => {
       if (!event?.id) return [];
       
+      console.log("Fetching eligible participants for event:", event.id); // Debug log
+
       const { data: winners } = await supabase
         .from('lottery_winners')
         .select('participant_id')
         .eq('event_id', event.id);
 
+      console.log("Current winners:", winners); // Debug log
+
       const winnerIds = winners?.map(w => w.participant_id) || [];
 
-      const { data: participants } = await supabase
+      const { data: participants, error } = await supabase
         .from('participants')
         .select('id, nickname, email, attendance_mode')
         .eq('event_id', event.id)
         .not('id', 'in', `(${winnerIds.length > 0 ? winnerIds.join(',') : 'null'})`);
 
+      if (error) {
+        console.error("Error fetching participants:", error); // Debug log
+        return [];
+      }
+
+      console.log("Eligible participants:", participants); // Debug log
       return participants || [];
     },
     enabled: !!event?.id,
@@ -47,6 +60,8 @@ const ManageLottery = () => {
     queryFn: async () => {
       if (!event?.id) return [];
       
+      console.log("Fetching lottery winners for event:", event.id); // Debug log
+
       const { data, error } = await supabase
         .from('lottery_winners')
         .select(`
@@ -60,7 +75,12 @@ const ManageLottery = () => {
         .eq('event_id', event.id)
         .order('round', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching winners:", error); // Debug log
+        throw error;
+      }
+
+      console.log("Current winners:", data); // Debug log
       return data;
     },
     enabled: !!event?.id,
@@ -75,6 +95,8 @@ const ManageLottery = () => {
 
       const randomIndex = Math.floor(Math.random() * eligibleParticipants.length);
       const winner = eligibleParticipants[randomIndex];
+
+      console.log("Selected winner:", winner); // Debug log
 
       const currentRound = winners?.length || 0;
       const nextRound = currentRound + 1;
