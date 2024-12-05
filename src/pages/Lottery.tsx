@@ -1,204 +1,125 @@
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/use-toast";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, Loader2 } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Navbar } from "@/components/Navbar";
+import { useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { useQuery } from "@tanstack/react-query";
 
 const Lottery = () => {
+  const navigate = useNavigate();
   const { eventId } = useParams();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const [isSpinning, setIsSpinning] = useState(false);
-  const [currentParticipant, setCurrentParticipant] = useState<string | null>(null);
-  const [round, setRound] = useState(1);
+  const [formData, setFormData] = useState({
+    nickname: "",
+    email: "",
+  });
 
-  const { data: participants, isLoading: isLoadingParticipants } = useQuery({
-    queryKey: ["participants", eventId],
+  const { data: event } = useQuery({
+    queryKey: ["event", eventId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("participants")
+        .from("events")
         .select("*")
-        .eq("event_id", eventId);
+        .eq("id", eventId)
+        .single();
 
       if (error) throw error;
       return data;
     },
   });
 
-  const { data: winners, isLoading: isLoadingWinners } = useQuery({
-    queryKey: ["lottery-winners", eventId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("lottery_winners")
-        .select("*, participants(*)")
-        .eq("event_id", eventId)
-        .order("round", { ascending: true });
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const addWinnerMutation = useMutation({
-    mutationFn: async ({ participantId, round }: { participantId: string; round: number }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
       const { error } = await supabase
-        .from("lottery_winners")
-        .insert([{ event_id: eventId, participant_id: participantId, round }]);
+        .from("lottery_participants")
+        .insert([
+          {
+            event_id: eventId,
+            nickname: formData.nickname,
+            email: formData.email,
+          },
+        ]);
 
       if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["lottery-winners", eventId] });
-    },
-  });
 
-  const spinWheel = () => {
-    if (!participants?.length) {
       toast({
-        title: "No participants",
-        description: "There are no participants to draw from.",
+        title: "Registration Successful",
+        description: "You have been registered for the lottery!",
+      });
+
+      // Clear form
+      setFormData({
+        nickname: "",
+        email: "",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Registration Failed",
+        description: error.message,
         variant: "destructive",
       });
-      return;
     }
-
-    setIsSpinning(true);
-    let spins = 0;
-    const maxSpins = 20;
-    const interval = setInterval(() => {
-      const availableParticipants = participants.filter(
-        (p) => !winners?.some((w) => w.participant_id === p.id)
-      );
-
-      if (!availableParticipants.length) {
-        clearInterval(interval);
-        setIsSpinning(false);
-        toast({
-          title: "No more participants",
-          description: "All participants have been drawn.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      const randomIndex = Math.floor(Math.random() * availableParticipants.length);
-      setCurrentParticipant(availableParticipants[randomIndex].nickname);
-      spins++;
-
-      if (spins >= maxSpins) {
-        clearInterval(interval);
-        setIsSpinning(false);
-        const winner = availableParticipants[Math.floor(Math.random() * availableParticipants.length)];
-        setCurrentParticipant(winner.nickname);
-        addWinnerMutation.mutate({ participantId: winner.id, round });
-        setRound((prev) => prev + 1);
-        toast({
-          title: "We have a winner! 🎉",
-          description: `Congratulations to ${winner.nickname}!`,
-        });
-      }
-    }, 100);
   };
-
-  if (isLoadingParticipants || isLoadingWinners) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <main className="container py-8">
-          <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin" />
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container py-8">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold mb-8 text-center">Prize Draw</h1>
-
-          <div className="grid gap-8">
-            <Card>
-              <CardContent className="pt-6">
-                <div className="relative mb-8">
-                  <div
-                    className={`w-64 h-64 mx-auto rounded-full border-4 border-primary flex items-center justify-center ${
-                      isSpinning ? "animate-spin" : ""
-                    }`}
-                  >
-                    <div className="text-xl font-bold p-4 text-center">
-                      {currentParticipant || "Click Spin!"}
-                    </div>
-                  </div>
+        <div className="max-w-md mx-auto">
+          <Card>
+            <CardHeader>
+              <CardTitle>{event?.name} - Lottery Registration</CardTitle>
+              <CardDescription>
+                Register for the lottery by providing your details below
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="nickname">Nickname</Label>
+                  <Input
+                    id="nickname"
+                    placeholder="Enter your nickname"
+                    value={formData.nickname}
+                    onChange={(e) =>
+                      setFormData({ ...formData, nickname: e.target.value })
+                    }
+                    required
+                  />
                 </div>
-
-                <div className="text-center">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) =>
+                      setFormData({ ...formData, email: e.target.value })
+                    }
+                    required
+                  />
+                </div>
+                <Button type="submit">Register for Lottery</Button>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>Want to create and manage your own events?</p>
                   <Button
-                    onClick={spinWheel}
-                    disabled={isSpinning || !participants?.length}
-                    size="lg"
-                    className="w-full md:w-auto"
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate(`/register?eventId=${eventId}&from=lottery`)}
                   >
-                    {isSpinning ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Spinning...
-                      </>
-                    ) : (
-                      "Spin the Wheel"
-                    )}
+                    Create an account
                   </Button>
                 </div>
-              </CardContent>
-            </Card>
-
-            {winners?.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Trophy className="h-5 w-5" />
-                    Winners
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {winners.map((winner) => (
-                      <div
-                        key={winner.id}
-                        className="p-4 bg-muted rounded-lg animate-fade-in flex items-center justify-between"
-                      >
-                        <div>
-                          <span className="font-medium">
-                            Round {winner.round}: {winner.participants?.nickname}
-                          </span>
-                          <p className="text-sm text-muted-foreground">
-                            {winner.participants?.email}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-            <div className="text-center text-sm text-muted-foreground">
-              <p>Want to create and manage your own events?</p>
-              <Button
-                variant="outline"
-                className="mt-2"
-                onClick={() => navigate(`/register?eventId=${eventId}&from=lottery`)}
-              >
-                Create an account
-              </Button>
-            </div>
-          </div>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </main>
     </div>

@@ -15,16 +15,36 @@ const Register = () => {
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        console.log('Sending welcome email to:', session.user.email);
+        
         // Send welcome email
         try {
-          const { error } = await supabase.functions.invoke('send-email', {
+          const { data, error } = await supabase.functions.invoke('send-email', {
             body: {
               type: 'welcome',
-              email: session.user.email
+              email: session.user.email,
+              to: [session.user.email],
+              subject: 'Welcome to Checkin! 🎉',
+              html: `
+                <h1>Welcome to Checkin!</h1>
+                <p>We're excited to have you on board. With Checkin, you can:</p>
+                <ul>
+                  <li>Create and manage events</li>
+                  <li>Track participant registrations</li>
+                  <li>Run fun lotteries</li>
+                  <li>Collect valuable feedback through surveys</li>
+                </ul>
+                <p>Get started by visiting your <a href="${window.location.origin}/dashboard">dashboard</a>.</p>
+              `
             }
           });
 
-          if (error) throw error;
+          console.log('Email function response:', data);
+
+          if (error) {
+            console.error('Error sending welcome email:', error);
+            throw error;
+          }
 
           toast({
             title: "Welcome to Checkin! 🎉",
@@ -32,6 +52,11 @@ const Register = () => {
           });
         } catch (error) {
           console.error('Error sending welcome email:', error);
+          toast({
+            title: "Welcome to Checkin!",
+            description: "Registration successful, but we couldn't send the welcome email.",
+            variant: "destructive",
+          });
         }
 
         // Check if user came from an event page
