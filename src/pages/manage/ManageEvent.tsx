@@ -11,13 +11,13 @@ import { useEventMutations } from "@/hooks/event/useEventMutations";
 import { supabase } from "@/integrations/supabase/client";
 
 const ManageEvent = () => {
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
   const [newSlug, setNewSlug] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
-  if (!slug) return null;
+  if (!teamSlug || !slug) return null;
 
-  const { event, isLoadingEvent, participants, survey } = useEventQueries(slug);
+  const { event, isLoadingEvent, participants, survey } = useEventQueries(teamSlug, slug);
   const { updateSlugMutation, activateEventMutation } = useEventMutations();
 
   const handleUpdateSlug = () => {
@@ -102,10 +102,12 @@ const ManageEvent = () => {
             }}
             onActivateEvent={handleActivateEvent}
             isActivated={event.is_activated}
-            mode={event.mode || 'offline'}
+            mode={event.mode || 'inperson'}
             onModeChange={handleModeChange}
             broadcastUrl={event.broadcast_url}
             onBroadcastUrlChange={handleBroadcastUrlChange}
+            teamSlug={teamSlug}
+            eventSlug={event.slug}
           />
         </div>
 
@@ -119,12 +121,12 @@ const ManageEvent = () => {
             eventId={event.id} 
             participants={participants || []} 
             canManageSurvey={event.team?.owner_id === event.created_by?.id}
-            eventMode={event.mode || 'offline'}
+            eventMode={event.mode || 'inperson'}
           />
           <EventInformation 
             description={event.description} 
             hasSurvey={!!survey}
-            mode={event.mode || 'offline'}
+            mode={event.mode || 'inperson'}
             broadcastUrl={event.broadcast_url}
             showBroadcast={!!showBroadcast}
           />

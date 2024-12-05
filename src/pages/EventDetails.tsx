@@ -8,15 +8,15 @@ import { useNavigate } from "react-router-dom";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
 
 const EventDetails = () => {
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
   const navigate = useNavigate();
 
-  if (!slug) {
-    console.log("No slug provided");
+  if (!teamSlug || !slug) {
+    console.log("No team slug or event slug provided");
     return null;
   }
 
-  const { event, isLoadingEvent, survey } = useEventQueries(slug);
+  const { event, isLoadingEvent, survey } = useEventQueries(teamSlug, slug);
 
   // Calculate whether to show broadcast URL (15 minutes before event)
   const showBroadcast = event && (event.mode === 'online' || event.mode === 'hybrid') && (() => {
@@ -63,7 +63,7 @@ const EventDetails = () => {
           <Tabs
             defaultValue="details"
             className="mb-8"
-            onValueChange={(value) => navigate(`/e/${slug}/${value}`)}
+            onValueChange={(value) => navigate(`/e/${teamSlug}/${slug}/${value}`)}
           >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="details">Details</TabsTrigger>

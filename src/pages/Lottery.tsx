@@ -7,11 +7,13 @@ import { useToast } from "@/components/ui/use-toast";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
 
 const Lottery = () => {
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
   const { toast } = useToast();
   const [winners, setWinners] = useState<Array<{ nickname: string, email: string }>>([]);
   
-  const { event, participants } = useEventQueries(slug || '');
+  if (!teamSlug || !slug) return null;
+
+  const { event, participants } = useEventQueries(teamSlug, slug);
 
   const selectWinner = () => {
     if (!participants || participants.length === 0) {
@@ -27,7 +29,7 @@ const Lottery = () => {
     const eligibleParticipants = participants.filter(
       participant => 
         !winners.some(winner => winner.email === participant.email) &&
-        participant.attendance_mode === 'offline'
+        participant.attendance_mode === 'inperson'
     );
 
     if (eligibleParticipants.length === 0) {
@@ -51,7 +53,7 @@ const Lottery = () => {
     });
   };
 
-  const offlineParticipants = participants?.filter(p => p.attendance_mode === 'offline') || [];
+  const offlineParticipants = participants?.filter(p => p.attendance_mode === 'inperson') || [];
 
   return (
     <div className="min-h-screen bg-background">

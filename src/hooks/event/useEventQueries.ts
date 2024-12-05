@@ -12,12 +12,30 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
           team:teams(
             id,
             name,
-            slug
+            slug,
+            owner_id
+          ),
+          created_by:profiles(
+            id
           )
         `)
         .eq("slug", eventSlug)
         .eq("teams.slug", teamSlug)
         .single();
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: participants } = useQuery({
+    queryKey: ["participants", event?.id],
+    enabled: !!event?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("participants")
+        .select("*")
+        .eq("event_id", event.id);
 
       if (error) throw error;
       return data;
@@ -42,6 +60,7 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
   return {
     event,
     isLoadingEvent,
+    participants,
     survey,
   };
 };

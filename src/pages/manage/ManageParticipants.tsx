@@ -5,11 +5,11 @@ import { useEventQueries } from "@/hooks/event/useEventQueries";
 import { supabase } from "@/integrations/supabase/client";
 
 const ManageParticipants = () => {
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
 
-  if (!slug) return null;
+  if (!teamSlug || !slug) return null;
 
-  const { event, isLoadingEvent, participants } = useEventQueries(slug);
+  const { event, isLoadingEvent, participants } = useEventQueries(teamSlug, slug);
 
   const handleAttendanceModeChange = async (participantId: string, mode: string) => {
     const { error } = await supabase
@@ -44,10 +44,10 @@ const ManageParticipants = () => {
         eventId={event.id} 
         participants={participants?.map(p => ({
           ...p,
-          attendance_mode: p.attendance_mode || 'offline'
+          attendance_mode: p.attendance_mode || 'inperson'
         })) || []} 
         canManageSurvey={event.team?.owner_id === event.created_by?.id}
-        eventMode={event.mode || 'offline'}
+        eventMode={event.mode || 'inperson'}
         onAttendanceModeChange={handleAttendanceModeChange}
       />
     </ManageLayout>
