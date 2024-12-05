@@ -188,6 +188,16 @@ const Lottery = () => {
                 </CardContent>
               </Card>
             )}
+            <div className="text-center text-sm text-muted-foreground">
+              <p>Want to create and manage your own events?</p>
+              <Button
+                variant="outline"
+                className="mt-2"
+                onClick={() => navigate(`/register?eventId=${eventId}&from=lottery`)}
+              >
+                Create an account
+              </Button>
+            </div>
           </div>
         </div>
       </main>

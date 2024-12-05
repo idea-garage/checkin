@@ -1,7 +1,7 @@
 import { Auth } from "@supabase/auth-ui-react";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 const Register = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -33,12 +34,27 @@ const Register = () => {
           console.error('Error sending welcome email:', error);
         }
 
-        navigate("/dashboard");
+        // Check if user came from an event page
+        const params = new URLSearchParams(location.search);
+        const eventId = params.get('eventId');
+        
+        if (eventId) {
+          // If they came from lottery page, redirect back there
+          if (params.get('from') === 'lottery') {
+            navigate(`/e/${eventId}/lottery`);
+          } else {
+            // Otherwise show event details
+            navigate(`/e/${eventId}/details`);
+          }
+        } else {
+          // Default redirect to dashboard
+          navigate("/dashboard");
+        }
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate, toast]);
+  }, [navigate, location, toast]);
 
   return (
     <div className="min-h-screen bg-background">

@@ -64,21 +64,6 @@ const EventRegistration = () => {
     }
   };
 
-  if (!event) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <main className="container py-8">
-          <Card>
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">Loading event details...</p>
-            </CardContent>
-          </Card>
-        </main>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -86,7 +71,7 @@ const EventRegistration = () => {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>{event.name}</CardTitle>
+              <CardTitle>{event?.name}</CardTitle>
               <CardDescription>
                 Register for this event by providing your details below
               </CardDescription>
@@ -118,9 +103,16 @@ const EventRegistration = () => {
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
-                  Register for Event
-                </Button>
+                <div className="space-y-2 text-sm text-muted-foreground">
+                  <p>Want to create and manage your own events?</p>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => navigate(`/register?eventId=${eventId}`)}
+                  >
+                    Create an account
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
