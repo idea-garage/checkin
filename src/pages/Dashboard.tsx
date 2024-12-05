@@ -11,6 +11,7 @@ import { format } from "date-fns";
 const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
+  const [isStaff, setIsStaff] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -18,15 +19,26 @@ const Dashboard = () => {
         navigate("/login");
       } else {
         setUser(session.user);
+        // Check if user is staff or admin
+        checkUserRole(session.user.id);
       }
     });
   }, [navigate]);
+
+  const checkUserRole = async (userId: string) => {
+    const { data: eventUsers } = await supabase
+      .from("event_users")
+      .select("is_admin, is_staff")
+      .eq("user_id", userId);
+
+    setIsStaff(eventUsers?.some(user => user.is_admin || user.is_staff) || false);
+  };
 
   const { data: todaysEvents, isLoading } = useQuery({
     queryKey: ["todaysEvents"],
     queryFn: async () => {
       const today = new Date().toISOString().split('T')[0];
-      const { data, error } = await supabase
+      let query = supabase
         .from("events")
         .select(`
           *,
@@ -36,9 +48,16 @@ const Dashboard = () => {
         `)
         .eq("date", today);
 
+      // If not staff/admin, only show events where user is a participant
+      if (!isStaff) {
+        query = query.eq("created_by", user?.id);
+      }
+
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
+    enabled: !!user,
   });
 
   return (
@@ -47,9 +66,11 @@ const Dashboard = () => {
       <main className="container py-8">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Team Dashboard</h1>
-          <Button onClick={() => navigate("/create-event")}>
-            <Plus className="mr-2 h-4 w-4" /> Create Event
-          </Button>
+          {isStaff && (
+            <Button onClick={() => navigate("/create-event")}>
+              <Plus className="mr-2 h-4 w-4" /> Create Event
+            </Button>
+          )}
         </div>
 
         <div className="grid gap-6">

@@ -125,7 +125,7 @@ const EventRegistration = () => {
                     />
                   </div>
 
-                  {event.mode !== 'inperson' && (
+                  {event.mode !== 'offline' && (
                     <div className="space-y-2">
                       <Label>How will you attend?</Label>
                       <div className="flex gap-2">
@@ -141,7 +141,7 @@ const EventRegistration = () => {
                         </Button>
                         <Button
                           type="button"
-                          className="h-9 px-6"
+                          className="h-9 px-6 bg-[#22C55E] hover:bg-[#16A34A]"
                           variant={formData.attendance_mode === "online" ? "default" : "outline"}
                           onClick={() =>
                             setFormData({ ...formData, attendance_mode: "online" })
