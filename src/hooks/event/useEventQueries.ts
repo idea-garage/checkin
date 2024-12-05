@@ -42,14 +42,14 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
 
       const winnerIds = winners?.map(w => w.participant_id) || [];
       
-      let query = supabase
+      const query = supabase
         .from('participants')
         .select('id, nickname, email, attendance_mode')
         .eq('event_id', event.id);
 
       // Only add the not.in filter if there are winners
       if (winnerIds.length > 0) {
-        query = query.not('id', 'in', `(${winnerIds.join(',')})`);
+        query.not('id', 'in', winnerIds);
       }
 
       const { data, error } = await query;
@@ -69,17 +69,22 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     enabled: !!event?.id,
     queryFn: async () => {
       console.log("Fetching survey for event:", event?.id);
-      const { data, error } = await supabase
-        .from("surveys")
-        .select("*")
-        .eq("event_id", event.id)
-        .single();
+      try {
+        const { data, error } = await supabase
+          .from("surveys")
+          .select("*")
+          .eq("event_id", event.id)
+          .single();
 
-      if (error && error.code !== "PGRST116") {
-        console.error("Error fetching survey:", error);
+        if (error && error.code !== "PGRST116") {
+          console.error("Error fetching survey:", error);
+          return null;
+        }
+        return data;
+      } catch (error) {
+        console.error("Error in survey query:", error);
         return null;
       }
-      return data;
     },
   });
 
