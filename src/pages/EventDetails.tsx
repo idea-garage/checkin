@@ -1,11 +1,10 @@
 import { Navbar } from "@/components/Navbar";
-import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams } from "react-router-dom";
 import { ParticipantList } from "@/components/event/ParticipantList";
 import { EventInformation } from "@/components/event/EventInformation";
 import { EventHeader } from "@/components/event/EventHeader";
 import { EventControls } from "@/components/event/EventControls";
+import { EventTimer } from "@/components/event/EventTimer";
 import { useState, useEffect } from "react";
 import Cookies from "js-cookie";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
@@ -24,36 +23,11 @@ const EventDetails = () => {
   const { event, isLoadingEvent, participants, survey } = useEventQueries(slug);
   const { updateSlugMutation, activateEventMutation } = useEventMutations();
 
-  const { data: user } = useQuery({
-    queryKey: ["user"],
-    queryFn: async () => {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      if (error) throw error;
-      
-      if (user) {
-        const { data: profile, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", user.id)
-          .single();
-          
-        if (profileError) throw profileError;
-        return { ...user, profile };
-      }
-      return null;
-    },
-  });
-
   useEffect(() => {
     if (event?.id) {
       Cookies.set(`event_${event.id}_visited`, 'true', { expires: 365 });
     }
   }, [event]);
-
-  const canManageSurvey = user?.profile && event?.team?.owner_id === user.profile.id;
-  const canEditSlug = user?.profile && 
-    event?.team?.owner_id === user.profile.id && 
-    !event?.is_activated;
 
   const handleUpdateSlug = () => {
     if (!newSlug || !event?.id) {
@@ -106,7 +80,7 @@ const EventDetails = () => {
             location={event.location}
           />
           <EventControls
-            canEditSlug={canEditSlug}
+            canEditSlug={event.team?.owner_id === event.created_by?.id && !event.is_activated}
             isEditing={isEditing}
             newSlug={newSlug}
             onSlugChange={setNewSlug}
@@ -121,11 +95,16 @@ const EventDetails = () => {
           />
         </div>
 
+        <EventTimer 
+          eventDate={event.date} 
+          eventTime={event.time} 
+        />
+
         <div className="grid gap-6 md:grid-cols-2">
           <ParticipantList 
             eventId={event.id} 
             participants={participants || []} 
-            canManageSurvey={canManageSurvey}
+            canManageSurvey={event.team?.owner_id === event.created_by?.id}
           />
           <EventInformation 
             description={event.description} 
