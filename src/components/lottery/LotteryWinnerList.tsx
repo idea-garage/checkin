@@ -1,4 +1,5 @@
 import { Globe, MapPin } from "lucide-react";
+import { AttendanceMode } from "@/types/enums";
 
 interface Winner {
   round: number;
@@ -16,7 +17,7 @@ interface LotteryWinnerListProps {
 
 export const LotteryWinnerList = ({ winners, isStaff }: LotteryWinnerListProps) => {
   const getAttendanceIcon = (mode: string) => {
-    return mode === 'online' ? (
+    return mode === AttendanceMode.ONLINE ? (
       <Globe className="h-4 w-4" />
     ) : (
       <MapPin className="h-4 w-4" />
@@ -49,7 +50,7 @@ export const LotteryWinnerList = ({ winners, isStaff }: LotteryWinnerListProps) 
             <div className="flex items-center gap-2 text-muted-foreground">
               {getAttendanceIcon(winner.participants?.attendance_mode)}
               <span className="text-sm">
-                {winner.participants?.attendance_mode === 'online' ? 'Online' : 'In Person'}
+                {winner.participants?.attendance_mode === AttendanceMode.ONLINE ? 'Online' : 'In Person'}
               </span>
             </div>
           </div>

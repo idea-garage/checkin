@@ -1,4 +1,5 @@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AttendanceMode } from "@/types/enums";
 
 interface ParticipantItemProps {
   participant: {
@@ -25,7 +26,7 @@ export const ParticipantItem = ({
             {participant.email}
           </div>
         </div>
-        {eventMode !== 'in-person' && onAttendanceModeChange && (
+        {eventMode !== AttendanceMode.IN_PERSON && onAttendanceModeChange && (
           <Select
             value={participant.attendance_mode}
             onValueChange={(value) => onAttendanceModeChange(participant.id, value)}
@@ -34,8 +35,8 @@ export const ParticipantItem = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="in-person">In Person</SelectItem>
-              <SelectItem value="online">Online</SelectItem>
+              <SelectItem value={AttendanceMode.IN_PERSON}>In Person</SelectItem>
+              <SelectItem value={AttendanceMode.ONLINE}>Online</SelectItem>
             </SelectContent>
           </Select>
         )}
