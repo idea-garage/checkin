@@ -22,9 +22,9 @@ export const EventModeManager = ({
           <SelectValue placeholder="Select event mode" />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="offline">Offline Only</SelectItem>
+          <SelectItem value="inperson">In Person Only</SelectItem>
           <SelectItem value="online">Online Only</SelectItem>
-          <SelectItem value="hybrid">Hybrid (Online & Offline)</SelectItem>
+          <SelectItem value="hybrid">Hybrid (Online & In Person)</SelectItem>
         </SelectContent>
       </Select>
       

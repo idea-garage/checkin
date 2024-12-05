@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, MapPin, Globe } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const ManageLottery = () => {
@@ -32,7 +32,7 @@ const ManageLottery = () => {
 
       const { data: participants } = await supabase
         .from('participants')
-        .select('id, nickname, email')
+        .select('id, nickname, email, attendance_mode')
         .eq('event_id', event.id)
         .not('id', 'in', `(${winnerIds.length > 0 ? winnerIds.join(',') : 'null'})`);
 
@@ -53,7 +53,8 @@ const ManageLottery = () => {
           round,
           participants (
             nickname,
-            email
+            email,
+            attendance_mode
           )
         `)
         .eq('event_id', event.id)
@@ -109,6 +110,14 @@ const ManageLottery = () => {
     },
   });
 
+  const getAttendanceIcon = (mode: string) => {
+    return mode === 'online' ? (
+      <Globe className="h-4 w-4" />
+    ) : (
+      <MapPin className="h-4 w-4" />
+    );
+  };
+
   if (isLoadingEvent) {
     return (
       <ManageLayout>
@@ -163,11 +172,21 @@ const ManageLottery = () => {
                   <div className="divide-y">
                     {winners.map((winner) => (
                       <div key={`${winner.round}-${winner.participants?.nickname}`} className="py-3">
-                        <div className="font-medium">
-                          Round {winner.round}: {winner.participants?.nickname}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {winner.participants?.email}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium">
+                              Round {winner.round}: {winner.participants?.nickname}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {winner.participants?.email}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            {getAttendanceIcon(winner.participants?.attendance_mode)}
+                            <span className="text-sm">
+                              {winner.participants?.attendance_mode === 'online' ? 'Online' : 'In Person'}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}

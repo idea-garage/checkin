@@ -17,7 +17,7 @@ const EventRegistration = () => {
   const [formData, setFormData] = useState({
     nickname: "",
     email: "",
-    attendance_mode: "offline",
+    attendance_mode: "inperson",
   });
 
   const { data: event } = useQuery({
@@ -116,7 +116,7 @@ const EventRegistration = () => {
                   formData={formData}
                   onChange={handleFormChange}
                   onSubmit={handleSubmit}
-                  showAttendanceMode={event.mode !== 'offline'}
+                  showAttendanceMode={event.mode !== 'inperson'}
                 />
               </CardContent>
             </Card>

@@ -25,7 +25,7 @@ export const ParticipantItem = ({
             {participant.email}
           </div>
         </div>
-        {eventMode !== 'offline' && onAttendanceModeChange && (
+        {eventMode !== 'inperson' && onAttendanceModeChange && (
           <Select
             value={participant.attendance_mode}
             onValueChange={(value) => onAttendanceModeChange(participant.id, value)}
@@ -34,7 +34,7 @@ export const ParticipantItem = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="offline">Offline</SelectItem>
+              <SelectItem value="inperson">In Person</SelectItem>
               <SelectItem value="online">Online</SelectItem>
             </SelectContent>
           </Select>
