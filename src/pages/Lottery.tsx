@@ -23,15 +23,17 @@ const Lottery = () => {
       return;
     }
 
-    // Filter out previous winners
+    // Filter out previous winners and online participants
     const eligibleParticipants = participants.filter(
-      participant => !winners.some(winner => winner.email === participant.email)
+      participant => 
+        !winners.some(winner => winner.email === participant.email) &&
+        participant.attendance_mode === 'offline'
     );
 
     if (eligibleParticipants.length === 0) {
       toast({
         title: "No more participants",
-        description: "All participants have been selected as winners.",
+        description: "All eligible participants have been selected as winners.",
         variant: "destructive",
       });
       return;
@@ -49,6 +51,8 @@ const Lottery = () => {
     });
   };
 
+  const offlineParticipants = participants?.filter(p => p.attendance_mode === 'offline') || [];
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -58,7 +62,7 @@ const Lottery = () => {
             <CardHeader>
               <CardTitle>{event?.name} - Lottery</CardTitle>
               <CardDescription>
-                Select winners from the registered participants
+                Select winners from offline participants
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -67,7 +71,7 @@ const Lottery = () => {
                   <Button 
                     size="lg" 
                     onClick={selectWinner}
-                    disabled={!participants || participants.length === 0}
+                    disabled={!offlineParticipants.length}
                   >
                     Select Winner
                   </Button>
@@ -92,7 +96,7 @@ const Lottery = () => {
                 )}
 
                 <div className="text-sm text-muted-foreground text-center">
-                  Total Participants: {participants?.length || 0}
+                  Eligible Participants (Offline): {offlineParticipants.length}
                 </div>
               </div>
             </CardContent>
