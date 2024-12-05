@@ -1,5 +1,3 @@
-import { Database } from './database';
-
 export type Json =
   | string
   | number
@@ -8,71 +6,104 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
-type PublicSchema = Database[Extract<keyof Database, "public">];
+// Define base table types
+export interface EventSchedule {
+  created_at: string;
+  created_by: string;
+  description: string | null;
+  end_time: string;
+  event_id: string;
+  id: string;
+  start_time: string;
+  title: string;
+}
 
-export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R;
-    }
-    ? R
-    : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R;
-      }
-      ? R
-      : never
-    : never;
+export interface EventUser {
+  created_at: string;
+  event_id: string;
+  id: string;
+  is_admin: boolean | null;
+  is_staff: boolean | null;
+  user_id: string;
+}
 
-export type TablesInsert<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I;
-    }
-    ? I
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I;
-      }
-      ? I
-      : never
-    : never;
+export interface Event {
+  broadcast_url: string | null;
+  created_at: string;
+  created_by: string;
+  date: string;
+  description: string | null;
+  id: string;
+  is_activated: boolean | null;
+  location: string | null;
+  mode: string;
+  name: string;
+  slug: string;
+  team_id: string;
+  time: string;
+}
 
-export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    | keyof PublicSchema["Tables"]
-    | { schema: keyof Database },
-  TableName extends PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U;
-    }
-    ? U
-    : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U;
-      }
-      ? U
-      : never
-    : never;
+export interface LotteryWinner {
+  created_at: string;
+  event_id: string;
+  id: string;
+  participant_id: string;
+  round: number;
+}
+
+export interface Participant {
+  attendance_mode: string;
+  created_at: string;
+  email: string;
+  event_id: string;
+  id: string;
+  nickname: string;
+}
+
+export interface Profile {
+  created_at: string;
+  email: string;
+  full_name: string | null;
+  id: string;
+  team_id: string;
+}
+
+export interface SurveyQuestion {
+  created_at: string;
+  id: string;
+  options: Json | null;
+  question: string;
+  survey_id: string;
+  type: string;
+}
+
+export interface SurveyResponse {
+  created_at: string;
+  id: string;
+  participant_id: string;
+  question_id: string;
+  response: string;
+}
+
+export interface Survey {
+  created_at: string;
+  event_id: string;
+  id: string;
+  title: string;
+}
+
+export interface TeamUser {
+  created_at: string;
+  id: string;
+  is_admin: boolean | null;
+  is_staff: boolean | null;
+  team_id: string;
+  user_id: string;
+}
+
+export interface Team {
+  created_at: string;
+  id: string;
+  name: string;
+  owner_id: string;
+}

@@ -1,64 +1,74 @@
-import { Tables, TablesInsert, TablesUpdate } from './tables';
-import { Enums } from './enums';
-import { CompositeTypes } from './composite-types';
+import {
+  EventSchedule,
+  EventUser,
+  Event,
+  LotteryWinner,
+  Participant,
+  Profile,
+  SurveyQuestion,
+  SurveyResponse,
+  Survey,
+  TeamUser,
+  Team,
+} from './tables';
 
-export type Database = {
+export interface Database {
   public: {
     Tables: {
       event_schedules: {
-        Row: Tables<'event_schedules'>;
-        Insert: TablesInsert<'event_schedules'>;
-        Update: TablesUpdate<'event_schedules'>;
+        Row: EventSchedule;
+        Insert: Partial<EventSchedule>;
+        Update: Partial<EventSchedule>;
       };
       event_users: {
-        Row: Tables<'event_users'>;
-        Insert: TablesInsert<'event_users'>;
-        Update: TablesUpdate<'event_users'>;
+        Row: EventUser;
+        Insert: Partial<EventUser>;
+        Update: Partial<EventUser>;
       };
       events: {
-        Row: Tables<'events'>;
-        Insert: TablesInsert<'events'>;
-        Update: TablesUpdate<'events'>;
+        Row: Event;
+        Insert: Partial<Event>;
+        Update: Partial<Event>;
       };
       lottery_winners: {
-        Row: Tables<'lottery_winners'>;
-        Insert: TablesInsert<'lottery_winners'>;
-        Update: TablesUpdate<'lottery_winners'>;
+        Row: LotteryWinner;
+        Insert: Partial<LotteryWinner>;
+        Update: Partial<LotteryWinner>;
       };
       participants: {
-        Row: Tables<'participants'>;
-        Insert: TablesInsert<'participants'>;
-        Update: TablesUpdate<'participants'>;
+        Row: Participant;
+        Insert: Partial<Participant>;
+        Update: Partial<Participant>;
       };
       profiles: {
-        Row: Tables<'profiles'>;
-        Insert: TablesInsert<'profiles'>;
-        Update: TablesUpdate<'profiles'>;
+        Row: Profile;
+        Insert: Partial<Profile>;
+        Update: Partial<Profile>;
       };
       survey_questions: {
-        Row: Tables<'survey_questions'>;
-        Insert: TablesInsert<'survey_questions'>;
-        Update: TablesUpdate<'survey_questions'>;
+        Row: SurveyQuestion;
+        Insert: Partial<SurveyQuestion>;
+        Update: Partial<SurveyQuestion>;
       };
       survey_responses: {
-        Row: Tables<'survey_responses'>;
-        Insert: TablesInsert<'survey_responses'>;
-        Update: TablesUpdate<'survey_responses'>;
+        Row: SurveyResponse;
+        Insert: Partial<SurveyResponse>;
+        Update: Partial<SurveyResponse>;
       };
       surveys: {
-        Row: Tables<'surveys'>;
-        Insert: TablesInsert<'surveys'>;
-        Update: TablesUpdate<'surveys'>;
+        Row: Survey;
+        Insert: Partial<Survey>;
+        Update: Partial<Survey>;
       };
       team_users: {
-        Row: Tables<'team_users'>;
-        Insert: TablesInsert<'team_users'>;
-        Update: TablesUpdate<'team_users'>;
+        Row: TeamUser;
+        Insert: Partial<TeamUser>;
+        Update: Partial<TeamUser>;
       };
       teams: {
-        Row: Tables<'teams'>;
-        Insert: TablesInsert<'teams'>;
-        Update: TablesUpdate<'teams'>;
+        Row: Team;
+        Insert: Partial<Team>;
+        Update: Partial<Team>;
       };
     };
     Views: {
@@ -74,4 +84,4 @@ export type Database = {
       [_ in never]: never;
     };
   };
-};
+}
