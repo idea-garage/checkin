@@ -15,6 +15,10 @@ import Settings from "./pages/Settings";
 import Survey from "./pages/Survey";
 import Lottery from "./pages/Lottery";
 import EventDetails from "./pages/EventDetails";
+import ManageEvent from "./pages/manage/ManageEvent";
+import ManageLottery from "./pages/manage/ManageLottery";
+import ManageParticipants from "./pages/manage/ManageParticipants";
+import ManageTimetable from "./pages/manage/ManageTimetable";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +40,11 @@ const App = () => (
             <Route path="/e/:slug/survey" element={<Survey />} />
             <Route path="/e/:slug/lottery" element={<Lottery />} />
             <Route path="/e/:slug/details" element={<EventDetails />} />
+            {/* Management Routes */}
+            <Route path="/m/:slug/details" element={<ManageEvent />} />
+            <Route path="/m/:slug/lottery" element={<ManageLottery />} />
+            <Route path="/m/:slug/participants" element={<ManageParticipants />} />
+            <Route path="/m/:slug/timetable" element={<ManageTimetable />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
