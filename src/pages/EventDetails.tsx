@@ -72,12 +72,11 @@ const EventDetails = () => {
         throw new Error("Event ID is required");
       }
 
-      // First check if the new slug is already in use by an activated event
+      // First check if the new slug is already in use by any event
       const { data: existingEvent, error: checkError } = await supabase
         .from('events')
         .select('id')
         .eq('slug', newSlug)
-        .eq('is_activated', true)
         .maybeSingle();
 
       if (existingEvent) {
