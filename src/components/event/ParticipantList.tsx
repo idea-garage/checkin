@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clipboard, Users, FileText, Trophy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,26 +27,11 @@ export const ParticipantList = ({
   onAttendanceModeChange,
 }: ParticipantListProps) => {
   const navigate = useNavigate();
+  const { teamSlug, slug } = useParams();
   const { toast } = useToast();
 
   const copyRegistrationLink = async () => {
-    // Get the event slug from the database
-    const { data: event } = await supabase
-      .from('events')
-      .select('slug')
-      .eq('id', eventId)
-      .single();
-
-    if (!event?.slug) {
-      toast({
-        title: "Error",
-        description: "Could not find event slug",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    const link = `${window.location.origin}/e/${event.slug}`;
+    const link = `${window.location.origin}/e/${teamSlug}/${slug}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "Link Copied",
@@ -72,7 +57,7 @@ export const ParticipantList = ({
             {eventMode !== 'online' && (
               <Button
                 variant="outline"
-                onClick={() => navigate(`/e/${eventId}/lottery`)}
+                onClick={() => navigate(`/e/${teamSlug}/${slug}/lottery`)}
               >
                 <Trophy className="mr-2 h-4 w-4" />
                 Lottery
@@ -81,7 +66,7 @@ export const ParticipantList = ({
             {canManageSurvey && (
               <Button
                 variant="outline"
-                onClick={() => navigate(`/e/${eventId}/survey`)}
+                onClick={() => navigate(`/e/${teamSlug}/${slug}/survey`)}
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Survey

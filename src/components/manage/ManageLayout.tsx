@@ -8,7 +8,7 @@ interface ManageLayoutProps {
 
 export const ManageLayout = ({ children }: ManageLayoutProps) => {
   const navigate = useNavigate();
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
   const location = useLocation();
   const currentTab = location.pathname.split('/').pop() || 'details';
 
@@ -19,7 +19,7 @@ export const ManageLayout = ({ children }: ManageLayoutProps) => {
         <Tabs
           value={currentTab}
           className="mb-8"
-          onValueChange={(value) => navigate(`/m/${slug}/${value}`)}
+          onValueChange={(value) => navigate(`/m/${teamSlug}/${slug}/${value}`)}
         >
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="details">Details</TabsTrigger>
