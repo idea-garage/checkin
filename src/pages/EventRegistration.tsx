@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Navbar } from "@/components/Navbar";
 import { EventHeader } from "@/components/event/EventHeader";
 import { EventInformation } from "@/components/event/EventInformation";
@@ -58,7 +57,6 @@ const EventRegistration = () => {
         description: "You have been registered for the event!",
       });
 
-      // Optionally redirect to a success page or survey
       navigate(`/e/${slug}/survey`);
     } catch (error: any) {
       toast({
@@ -130,39 +128,32 @@ const EventRegistration = () => {
                   {event.mode !== 'offline' && (
                     <div className="space-y-2">
                       <Label>How will you attend?</Label>
-                      <RadioGroup
-                        value={formData.attendance_mode}
-                        onValueChange={(value) =>
-                          setFormData({ ...formData, attendance_mode: value })
-                        }
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="offline" id="offline" />
-                          <Label htmlFor="offline">In Person</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="online" id="online" />
-                          <Label htmlFor="online">Online</Label>
-                        </div>
-                      </RadioGroup>
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant={formData.attendance_mode === "offline" ? "default" : "outline"}
+                          onClick={() =>
+                            setFormData({ ...formData, attendance_mode: "offline" })
+                          }
+                        >
+                          In Person
+                        </Button>
+                        <Button
+                          type="button"
+                          variant={formData.attendance_mode === "online" ? "default" : "outline"}
+                          onClick={() =>
+                            setFormData({ ...formData, attendance_mode: "online" })
+                          }
+                        >
+                          Online
+                        </Button>
+                      </div>
                     </div>
                   )}
 
                   <Button type="submit" className="w-full">
                     Register for Event
                   </Button>
-
-                  <div className="space-y-2 text-sm text-muted-foreground">
-                    <p>Want to create and manage your own events?</p>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => navigate(`/register?eventId=${slug}`)}
-                      className="w-full"
-                    >
-                      Create an account
-                    </Button>
-                  </div>
                 </form>
               </CardContent>
             </Card>
