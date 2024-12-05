@@ -1,10 +1,8 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
 import { EventHeader } from "@/components/event/EventHeader";
 import { EventInformation } from "@/components/event/EventInformation";
+import { RegistrationForm } from "@/components/event/RegistrationForm";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +16,7 @@ const EventRegistration = () => {
   const [formData, setFormData] = useState({
     nickname: "",
     email: "",
-    attendance_mode: "inperson",
+    attendance_mode: "offline",
   });
 
   const { data: event } = useQuery({
@@ -34,6 +32,10 @@ const EventRegistration = () => {
       return data;
     },
   });
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,65 +100,12 @@ const EventRegistration = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="nickname">Nickname</Label>
-                    <Input
-                      id="nickname"
-                      placeholder="Enter your nickname"
-                      value={formData.nickname}
-                      onChange={(e) =>
-                        setFormData({ ...formData, nickname: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-
-                  {event.mode !== 'offline' && (
-                    <div className="space-y-2">
-                      <Label>How will you attend?</Label>
-                      <div className="flex gap-2">
-                        <Button
-                          type="button"
-                          className="h-9 px-6 bg-[#22C55E] hover:bg-[#16A34A]"
-                          variant={formData.attendance_mode === "inperson" ? "default" : "outline"}
-                          onClick={() =>
-                            setFormData({ ...formData, attendance_mode: "inperson" })
-                          }
-                        >
-                          In Person
-                        </Button>
-                        <Button
-                          type="button"
-                          className="h-9 px-6 bg-[#22C55E] hover:bg-[#16A34A]"
-                          variant={formData.attendance_mode === "online" ? "default" : "outline"}
-                          onClick={() =>
-                            setFormData({ ...formData, attendance_mode: "online" })
-                          }
-                        >
-                          Online
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-
-                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
-                    Register for Event
-                  </Button>
-                </form>
+                <RegistrationForm
+                  formData={formData}
+                  onChange={handleFormChange}
+                  onSubmit={handleSubmit}
+                  showAttendanceMode={event.mode !== 'offline'}
+                />
               </CardContent>
             </Card>
             <div className="space-y-6">
