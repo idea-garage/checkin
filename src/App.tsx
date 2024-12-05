@@ -15,6 +15,7 @@ import Settings from "./pages/Settings";
 import Survey from "./pages/Survey";
 import Lottery from "./pages/Lottery";
 import EventDetails from "./pages/EventDetails";
+import Timetable from "./pages/Timetable";
 import ManageEvent from "./pages/manage/ManageEvent";
 import ManageLottery from "./pages/manage/ManageLottery";
 import ManageParticipants from "./pages/manage/ManageParticipants";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/e/:teamSlug/:slug/survey" element={<Survey />} />
             <Route path="/e/:teamSlug/:slug/lottery" element={<Lottery />} />
             <Route path="/e/:teamSlug/:slug/details" element={<EventDetails />} />
+            <Route path="/e/:teamSlug/:slug/timetable" element={<Timetable />} />
             {/* Management Routes */}
             <Route path="/m/:teamSlug/:slug/details" element={<ManageEvent />} />
             <Route path="/m/:teamSlug/:slug/lottery" element={<ManageLottery />} />

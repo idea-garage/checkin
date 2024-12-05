@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 import { generateEventUrl } from "@/utils/urlUtils";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const EventRegistration = () => {
   const { teamSlug, slug } = useParams();
@@ -18,7 +19,6 @@ const EventRegistration = () => {
     nickname: "",
     email: "",
     attendance_mode: "inperson",
-    createAccount: false,
   });
 
   const { data: event } = useQuery({
@@ -52,67 +52,21 @@ const EventRegistration = () => {
     }
 
     try {
-      let userId = null;
-
-      // If user wants to create an account
-      if (formData.createAccount) {
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: formData.email,
-          password: crypto.randomUUID(), // Generate a random password
-          options: {
-            data: {
-              full_name: formData.nickname,
-            },
-          },
-        });
-
-        if (authError) throw authError;
-        userId = authData.user?.id;
-
-        // Send welcome email with magic link
-        const { error: emailError } = await supabase.functions.invoke('send-email', {
-          body: {
-            type: 'welcome-participant',
-            email: formData.email,
-            to: [formData.email],
-            subject: 'Welcome to Checkin! Complete your registration',
-            html: `
-              <h1>Welcome to Checkin!</h1>
-              <p>Thank you for registering for the event. To access your account in the future, click the button below:</p>
-              <a href="${window.location.origin}/login" 
-                 style="background-color: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
-                Login to Your Account
-              </a>
-              <p>You can use the "Forgot Password" option to set your password.</p>
-            `
-          }
-        });
-
-        if (emailError) {
-          console.error('Error sending welcome email:', emailError);
-        }
-      }
-
       // Register participant
       const { error } = await supabase
         .from("participants")
-        .insert([
-          {
-            event_id: event?.id,
-            nickname: formData.nickname,
-            email: formData.email,
-            attendance_mode: formData.attendance_mode,
-            user_id: userId,
-          },
-        ]);
+        .insert([{
+          event_id: event?.id,
+          nickname: formData.nickname,
+          email: formData.email,
+          attendance_mode: formData.attendance_mode,
+        }]);
 
       if (error) throw error;
 
       toast({
         title: "Registration Successful",
-        description: formData.createAccount 
-          ? "You have been registered! Check your email to complete your account setup."
-          : "You have been registered for the event!",
+        description: "You have been registered for the event!",
       });
 
       const redirectUrl = generateEventUrl(teamSlug, slug);
@@ -148,6 +102,31 @@ const EventRegistration = () => {
             time={event.time}
             location={event.location}
           />
+
+          <Tabs defaultValue="register" className="mb-8">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="register">Register</TabsTrigger>
+              <TabsTrigger 
+                value="timetable" 
+                onClick={() => navigate(`/e/${teamSlug}/${slug}/timetable`)}
+              >
+                Timetable
+              </TabsTrigger>
+              <TabsTrigger 
+                value="lottery"
+                onClick={() => navigate(`/e/${teamSlug}/${slug}/lottery`)}
+              >
+                Lottery
+              </TabsTrigger>
+              <TabsTrigger 
+                value="survey"
+                onClick={() => navigate(`/e/${teamSlug}/${slug}/survey`)}
+              >
+                Survey
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+
           <div className="grid gap-6 md:grid-cols-[2fr,1fr]">
             <Card>
               <CardHeader>
