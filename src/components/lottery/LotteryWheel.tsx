@@ -18,10 +18,14 @@ interface LotteryWheelProps {
 export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: LotteryWheelProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const [displayedParticipants, setDisplayedParticipants] = useState<Participant[]>([]);
 
   useEffect(() => {
     if (isSpinning && participants.length > 0) {
-      console.log("Starting spin with participants:", participants); // Debug log
+      console.log("Starting spin with participants:", participants);
+      // Show all participants while spinning
+      setDisplayedParticipants(participants);
+      
       // Start the wheel animation
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % participants.length);
@@ -37,7 +41,9 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
           // Select winner
           const winnerIndex = Math.floor(Math.random() * participants.length);
           setCurrentIndex(winnerIndex);
-          console.log("Selected winner:", participants[winnerIndex]); // Debug log
+          console.log("Selected winner:", participants[winnerIndex]);
+          // Show only the winner
+          setDisplayedParticipants([participants[winnerIndex]]);
           onSpinComplete(participants[winnerIndex]);
         }
       }, duration);
@@ -58,27 +64,25 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
     );
   }
 
-  const currentParticipant = participants[currentIndex];
-
   return (
-    <Card className="relative overflow-hidden h-48 flex items-center justify-center bg-card">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentIndex}
-          initial={{ y: 50, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -50, opacity: 0 }}
-          transition={{ duration: 0.2 }}
-          className="text-center"
-        >
-          <h3 className="text-4xl font-bold mb-2">{currentParticipant?.nickname}</h3>
-          {currentParticipant?.attendance_mode === 'online' ? (
-            <p className="text-lg text-muted-foreground">Online Participant</p>
-          ) : (
-            <p className="text-lg text-muted-foreground">In-Person Participant</p>
-          )}
-        </motion.div>
-      </AnimatePresence>
+    <Card className="relative overflow-hidden min-h-[300px] flex items-center justify-center bg-card">
+      <div className="space-y-4">
+        {displayedParticipants.map((participant, index) => (
+          <motion.div
+            key={participant.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2, delay: index * 0.1 }}
+            className="text-center"
+          >
+            <h3 className="text-2xl font-bold mb-1">{participant.nickname}</h3>
+            <p className="text-sm text-muted-foreground">
+              {participant.attendance_mode === 'online' ? 'Online' : 'In-Person'} Participant
+            </p>
+          </motion.div>
+        ))}
+      </div>
     </Card>
   );
 };
