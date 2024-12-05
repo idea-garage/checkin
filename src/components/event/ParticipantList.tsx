@@ -19,6 +19,7 @@ export const ParticipantList = ({ eventId, participants, canManageSurvey }: Part
   const { toast } = useToast();
 
   const copyRegistrationLink = () => {
+    // Always use /e/ for registration links
     const link = `${window.location.origin}/e/${eventId}`;
     navigator.clipboard.writeText(link);
     toast({

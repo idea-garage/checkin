@@ -88,15 +88,15 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/e/${event.slug}`)}
+                          onClick={() => navigate(`/m/${event.slug}/participants`)}
                         >
                           <Users className="h-4 w-4 mr-1" />
-                          Registration
+                          Manage Event
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/e/${event.slug}/details`)}
+                          onClick={() => navigate(`/m/${event.slug}/details`)}
                         >
                           View Details
                         </Button>
