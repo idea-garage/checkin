@@ -31,7 +31,7 @@ export const LotteryDrawer = ({
         {isPending && (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         )}
-        Draw Winner
+        {isPending ? "Drawing..." : "Draw Winner"}
       </Button>
     </div>
   );

@@ -32,8 +32,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
       }, 100); // Speed of rotation
       setIntervalId(interval);
 
-      // Stop after a random duration between 2-4 seconds
-      const duration = 2000 + Math.random() * 2000;
+      // Stop after exactly 10 seconds
       setTimeout(() => {
         if (interval) {
           clearInterval(interval);
@@ -46,7 +45,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
           setDisplayedParticipants([participants[winnerIndex]]);
           onSpinComplete(participants[winnerIndex]);
         }
-      }, duration);
+      }, 10000); // Exactly 10 seconds
     }
 
     return () => {

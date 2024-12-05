@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { LotteryWinnerList } from "@/components/lottery/LotteryWinnerList";
 import { LotteryDrawer } from "@/components/lottery/LotteryDrawer";
 import { LotteryWheel } from "@/components/lottery/LotteryWheel";
+import { useState } from "react";
 
 const Lottery = () => {
   const { teamSlug, slug } = useParams();
@@ -18,7 +19,7 @@ const Lottery = () => {
 
   const { event, participants } = useEventQueries(teamSlug, slug);
 
-  console.log("Lottery - participants:", participants); // Debug log
+  console.log("Lottery - participants:", participants);
 
   // Fetch lottery winners
   const { data: winners } = useQuery({
@@ -52,6 +53,9 @@ const Lottery = () => {
     enabled: !!event?.id,
   });
 
+  // State to control spinning
+  const [isSpinning, setIsSpinning] = useState(false);
+
   // Draw winner mutation
   const drawWinnerMutation = useMutation({
     mutationFn: async () => {
@@ -59,10 +63,20 @@ const Lottery = () => {
         throw new Error("No participants available");
       }
 
-      const randomIndex = Math.floor(Math.random() * participants.length);
-      const winner = participants[randomIndex];
+      setIsSpinning(true); // Start the wheel spinning
 
-      console.log("Selected winner:", winner);
+      // Return a promise that resolves after the spin animation (10 seconds)
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const randomIndex = Math.floor(Math.random() * participants.length);
+          const winner = participants[randomIndex];
+          resolve(winner);
+        }, 10000); // Match the wheel's 10-second spin duration
+      });
+    },
+    onSuccess: async (winner) => {
+      // After the spin animation completes, save the winner to the database
+      if (!event?.id) return;
 
       const currentRound = winners?.length || 0;
       const nextRound = currentRound + 1;
@@ -76,16 +90,16 @@ const Lottery = () => {
         });
 
       if (error) throw error;
-      return winner;
-    },
-    onSuccess: (winner) => {
+
       queryClient.invalidateQueries({ queryKey: ['lottery-winners', event?.id] });
       toast({
         title: "Winner Selected!",
         description: `${winner.nickname} has been selected as the winner!`,
       });
+      setIsSpinning(false); // Stop the wheel spinning
     },
     onError: (error) => {
+      setIsSpinning(false); // Stop the wheel if there's an error
       toast({
         title: "Error",
         description: "Failed to select winner. Please try again.",
@@ -124,13 +138,16 @@ const Lottery = () => {
                   isLoading={false}
                   participantCount={participants?.length || 0}
                   onDraw={() => drawWinnerMutation.mutate()}
-                  isPending={drawWinnerMutation.isPending}
+                  isPending={isSpinning || drawWinnerMutation.isPending}
                 />
 
                 <LotteryWheel
                   participants={participants || []}
-                  isSpinning={drawWinnerMutation.isPending}
-                  onSpinComplete={(winner) => drawWinnerMutation.mutate()}
+                  isSpinning={isSpinning}
+                  onSpinComplete={(winner) => {
+                    // The actual database update is handled in mutation's onSuccess
+                    console.log("Wheel stopped on winner:", winner);
+                  }}
                 />
 
                 <div className="space-y-4">
