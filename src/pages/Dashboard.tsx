@@ -79,6 +79,7 @@ const Dashboard = () => {
                       <div>
                         <h3 className="font-medium">{event.name}</h3>
                         <p className="text-sm text-muted-foreground">
+                          {format(new Date(event.date), "MMMM d, yyyy")} at{' '}
                           {format(new Date(`2000-01-01T${event.time}`), 'h:mm a')} •{' '}
                           {event.participants?.[0]?.count || 0} participants
                         </p>
@@ -87,7 +88,7 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/e/${event.id}`)}
+                          onClick={() => navigate(`/e/${event.slug}`)}
                         >
                           <Users className="h-4 w-4 mr-1" />
                           Registration
@@ -95,7 +96,7 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/e/${event.id}/details`)}
+                          onClick={() => navigate(`/e/${event.slug}/details`)}
                         >
                           View Details
                         </Button>

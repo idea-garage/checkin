@@ -1,17 +1,24 @@
 import { Navbar } from "@/components/Navbar";
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { ParticipantList } from "@/components/event/ParticipantList";
 import { EventInformation } from "@/components/event/EventInformation";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
 const EventDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [newSlug, setNewSlug] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
 
   // Add validation for slug
   if (!slug) {
@@ -57,6 +64,63 @@ const EventDetails = () => {
         navigate("/dashboard");
       }
     }
+  });
+
+  const updateSlugMutation = useMutation({
+    mutationFn: async ({ newSlug, eventId }: { newSlug: string; eventId: string }) => {
+      const { data, error } = await supabase
+        .from('events')
+        .update({ slug: newSlug })
+        .eq('id', eventId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["event"] });
+      toast({
+        title: "Success",
+        description: "Event slug updated successfully",
+      });
+      navigate(`/e/${data.slug}/details`);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const activateEventMutation = useMutation({
+    mutationFn: async (eventId: string) => {
+      const { data, error } = await supabase
+        .from('events')
+        .update({ is_activated: true })
+        .eq('id', eventId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["event"] });
+      toast({
+        title: "Success",
+        description: "Event activated successfully",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   const { data: participants, isLoading: isLoadingParticipants } = useQuery({
@@ -108,9 +172,31 @@ const EventDetails = () => {
     },
   });
 
+  useEffect(() => {
+    if (event) {
+      // Set cookie for participant tracking
+      Cookies.set(`event_${event.id}_visited`, 'true', { expires: 365 });
+    }
+  }, [event]);
+
   const canManageSurvey = user?.profile && (
     event?.team?.owner_id === user.profile.id
   );
+
+  const canEditSlug = user?.profile && 
+    event?.team?.owner_id === user.profile.id && 
+    !event?.is_activated;
+
+  const handleUpdateSlug = () => {
+    if (!newSlug || !event) return;
+    updateSlugMutation.mutate({ newSlug, eventId: event.id });
+    setIsEditing(false);
+  };
+
+  const handleActivateEvent = () => {
+    if (!event) return;
+    activateEventMutation.mutate(event.id);
+  };
 
   if (isLoadingEvent) {
     return (
@@ -139,7 +225,39 @@ const EventDetails = () => {
       <Navbar />
       <main className="container py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
+          <div className="flex justify-between items-start mb-4">
+            <h1 className="text-3xl font-bold">{event.name}</h1>
+            {canEditSlug && (
+              <div className="flex items-center gap-2">
+                {isEditing ? (
+                  <>
+                    <Input
+                      value={newSlug}
+                      onChange={(e) => setNewSlug(e.target.value)}
+                      placeholder="New slug"
+                      className="w-48"
+                    />
+                    <Button onClick={handleUpdateSlug}>Save</Button>
+                    <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" onClick={() => {
+                      setNewSlug(event.slug);
+                      setIsEditing(true);
+                    }}>
+                      Edit Slug
+                    </Button>
+                    {!event.is_activated && (
+                      <Button onClick={handleActivateEvent}>
+                        Activate Event
+                      </Button>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+          </div>
           <div className="flex flex-wrap gap-4 text-muted-foreground">
             <div className="flex items-center gap-1">
               <Calendar className="h-4 w-4" />

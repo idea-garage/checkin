@@ -106,6 +106,7 @@ export type Database = {
           date: string
           description: string | null
           id: string
+          is_activated: boolean | null
           location: string | null
           name: string
           slug: string
@@ -118,6 +119,7 @@ export type Database = {
           date: string
           description?: string | null
           id?: string
+          is_activated?: boolean | null
           location?: string | null
           name: string
           slug: string
@@ -130,6 +132,7 @@ export type Database = {
           date?: string
           description?: string | null
           id?: string
+          is_activated?: boolean | null
           location?: string | null
           name?: string
           slug?: string
