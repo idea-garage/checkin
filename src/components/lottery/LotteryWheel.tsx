@@ -21,6 +21,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
 
   useEffect(() => {
     if (isSpinning && participants.length > 0) {
+      console.log("Starting spin with participants:", participants); // Debug log
       // Start the wheel animation
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % participants.length);
@@ -36,6 +37,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
           // Select winner
           const winnerIndex = Math.floor(Math.random() * participants.length);
           setCurrentIndex(winnerIndex);
+          console.log("Selected winner:", participants[winnerIndex]); // Debug log
           onSpinComplete(participants[winnerIndex]);
         }
       }, duration);
@@ -56,8 +58,10 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
     );
   }
 
+  const currentParticipant = participants[currentIndex];
+
   return (
-    <Card className="relative overflow-hidden h-48 flex items-center justify-center">
+    <Card className="relative overflow-hidden h-48 flex items-center justify-center bg-card">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentIndex}
@@ -67,11 +71,11 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
           transition={{ duration: 0.2 }}
           className="text-center"
         >
-          <h3 className="text-2xl font-bold">{participants[currentIndex]?.nickname}</h3>
-          {participants[currentIndex]?.attendance_mode === 'online' ? (
-            <p className="text-sm text-muted-foreground">Online Participant</p>
+          <h3 className="text-4xl font-bold mb-2">{currentParticipant?.nickname}</h3>
+          {currentParticipant?.attendance_mode === 'online' ? (
+            <p className="text-lg text-muted-foreground">Online Participant</p>
           ) : (
-            <p className="text-sm text-muted-foreground">In-Person Participant</p>
+            <p className="text-lg text-muted-foreground">In-Person Participant</p>
           )}
         </motion.div>
       </AnimatePresence>
