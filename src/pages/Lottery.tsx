@@ -10,6 +10,12 @@ import { LotteryDrawer } from "@/components/lottery/LotteryDrawer";
 import { LotteryWheel } from "@/components/lottery/LotteryWheel";
 import { useState } from "react";
 
+interface Winner {
+  id: string;
+  nickname: string;
+  attendance_mode: string;
+}
+
 const Lottery = () => {
   const { teamSlug, slug } = useParams();
   const { toast } = useToast();
@@ -66,11 +72,11 @@ const Lottery = () => {
       setIsSpinning(true); // Start the wheel spinning
 
       // Return a promise that resolves after the spin animation (10 seconds)
-      return new Promise((resolve) => {
+      return new Promise<Winner>((resolve) => {
         setTimeout(() => {
           const randomIndex = Math.floor(Math.random() * participants.length);
           const winner = participants[randomIndex];
-          resolve(winner);
+          resolve(winner as Winner);
         }, 10000); // Match the wheel's 10-second spin duration
       });
     },

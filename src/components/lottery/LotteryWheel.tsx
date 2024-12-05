@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -19,17 +19,37 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
   const [currentIndex, setCurrentIndex] = useState(0);
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [displayedParticipants, setDisplayedParticipants] = useState<Participant[]>([]);
+  const [rotationSpeed, setRotationSpeed] = useState(100); // Initial speed (ms)
+
+  const updateSpeed = useCallback(() => {
+    if (isSpinning) {
+      // Start fast (100ms)
+      setRotationSpeed(100);
+      
+      // After 5 seconds, start slowing down gradually
+      setTimeout(() => {
+        const slowdownInterval = setInterval(() => {
+          setRotationSpeed(prev => {
+            const newSpeed = prev + 20; // Gradually increase interval
+            if (newSpeed >= 500) { // Max slowdown speed
+              clearInterval(slowdownInterval);
+            }
+            return Math.min(newSpeed, 500);
+          });
+        }, 500); // Adjust speed every 500ms
+      }, 5000);
+    }
+  }, [isSpinning]);
 
   useEffect(() => {
     if (isSpinning && participants.length > 0) {
       console.log("Starting spin with participants:", participants);
-      // Show all participants while spinning
       setDisplayedParticipants(participants);
+      updateSpeed();
       
-      // Start the wheel animation
       const interval = setInterval(() => {
         setCurrentIndex((prev) => (prev + 1) % participants.length);
-      }, 100); // Speed of rotation
+      }, rotationSpeed); // Use dynamic speed
       setIntervalId(interval);
 
       // Stop after exactly 10 seconds
@@ -41,11 +61,10 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
           const winnerIndex = Math.floor(Math.random() * participants.length);
           setCurrentIndex(winnerIndex);
           console.log("Selected winner:", participants[winnerIndex]);
-          // Show only the winner
           setDisplayedParticipants([participants[winnerIndex]]);
           onSpinComplete(participants[winnerIndex]);
         }
-      }, 10000); // Exactly 10 seconds
+      }, 10000);
     }
 
     return () => {
@@ -53,7 +72,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
         clearInterval(intervalId);
       }
     };
-  }, [isSpinning, participants, onSpinComplete]);
+  }, [isSpinning, participants, onSpinComplete, rotationSpeed, updateSpeed]);
 
   if (participants.length === 0) {
     return (
@@ -65,22 +84,33 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
 
   return (
     <Card className="relative overflow-hidden min-h-[300px] flex items-center justify-center bg-card">
-      <div className="space-y-4">
-        {displayedParticipants.map((participant, index) => (
-          <motion.div
-            key={participant.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2, delay: index * 0.1 }}
-            className="text-center"
-          >
-            <h3 className="text-2xl font-bold mb-1">{participant.nickname}</h3>
-            <p className="text-sm text-muted-foreground">
-              {participant.attendance_mode === 'online' ? 'Online' : 'In-Person'} Participant
-            </p>
-          </motion.div>
-        ))}
+      <div className="w-64 h-64 relative">
+        <AnimatePresence>
+          {displayedParticipants.map((participant, index) => (
+            <motion.div
+              key={participant.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1,
+                rotate: isSpinning ? [0, 360] : 0 // Add rotation when spinning
+              }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ 
+                duration: isSpinning ? 0.5 : 0.3,
+                ease: "easeInOut"
+              }}
+              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center
+                ${isSpinning ? 'border-2 border-primary rounded-full p-4 animate-pulse' : ''}
+                ${!isSpinning && displayedParticipants.length === 1 ? 'border-4 border-primary rounded-full p-6 shadow-lg' : ''}`}
+            >
+              <h3 className="text-2xl font-bold mb-1">{participant.nickname}</h3>
+              <p className="text-sm text-muted-foreground">
+                {participant.attendance_mode === 'online' ? 'Online' : 'In-Person'} Participant
+              </p>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
     </Card>
   );
