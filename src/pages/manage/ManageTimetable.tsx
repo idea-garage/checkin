@@ -29,6 +29,17 @@ const ManageTimetable = () => {
     if (!event?.id) return;
 
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to add schedule items",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const { error } = await supabase
         .from('event_schedules')
         .insert({
@@ -37,6 +48,7 @@ const ManageTimetable = () => {
           description,
           start_time: new Date(startTime).toISOString(),
           end_time: new Date(endTime).toISOString(),
+          created_by: user.id
         });
 
       if (error) throw error;
