@@ -29,7 +29,7 @@ const EventDetails = () => {
         .select(`
           *,
           team:teams(owner_id),
-          created_by:profiles!events_created_by_fkey(is_staff)
+          created_by:profiles!events_created_by_fkey(id)
         `)
         .eq("slug", slug)
         .single();
@@ -46,15 +46,17 @@ const EventDetails = () => {
 
       return data;
     },
-    onError: (error) => {
-      console.error("Query error:", error);
-      toast({
-        title: "Error",
-        description: "Event not found",
-        variant: "destructive",
-      });
-      navigate("/dashboard");
-    },
+    meta: {
+      onError: (error: Error) => {
+        console.error("Query error:", error);
+        toast({
+          title: "Error",
+          description: "Event not found",
+          variant: "destructive",
+        });
+        navigate("/dashboard");
+      }
+    }
   });
 
   const { data: participants, isLoading: isLoadingParticipants } = useQuery({
@@ -110,7 +112,7 @@ const EventDetails = () => {
     event?.team?.owner_id === user.profile.id
   );
 
-  if (isLoadingEvent || isLoadingParticipants) {
+  if (isLoadingEvent) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />

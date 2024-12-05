@@ -37,7 +37,7 @@ const Lottery = () => {
     
     try {
       const { error } = await supabase
-        .from("lottery_participants")
+        .from("participants")
         .insert([
           {
             event_id: eventId,
