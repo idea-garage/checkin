@@ -28,8 +28,24 @@ export const ParticipantList = ({
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const copyRegistrationLink = () => {
-    const link = `${window.location.origin}/e/${eventId}`;
+  const copyRegistrationLink = async () => {
+    // Get the event slug from the database
+    const { data: event } = await supabase
+      .from('events')
+      .select('slug')
+      .eq('id', eventId)
+      .single();
+
+    if (!event?.slug) {
+      toast({
+        title: "Error",
+        description: "Could not find event slug",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const link = `${window.location.origin}/e/${event.slug}`;
     navigator.clipboard.writeText(link);
     toast({
       title: "Link Copied",
