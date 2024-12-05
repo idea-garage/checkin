@@ -27,6 +27,8 @@ export const ParticipantList = ({
 
   if (!teamSlug || !slug) return null;
 
+  console.log("Rendering participants:", participants); // Debug log
+
   return (
     <Card>
       <CardHeader>

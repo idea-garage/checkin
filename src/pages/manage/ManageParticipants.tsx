@@ -11,6 +11,8 @@ const ManageParticipants = () => {
 
   const { event, isLoadingEvent, participants } = useEventQueries(teamSlug, slug);
 
+  console.log("ManageParticipants - participants:", participants); // Debug log
+
   const handleAttendanceModeChange = async (participantId: string, mode: string) => {
     const { error } = await supabase
       .from('participants')
@@ -42,10 +44,7 @@ const ManageParticipants = () => {
     <ManageLayout>
       <ParticipantList 
         eventId={event.id} 
-        participants={participants?.map(p => ({
-          ...p,
-          attendance_mode: p.attendance_mode || 'inperson'
-        })) || []} 
+        participants={participants || []}
         canManageSurvey={event.team?.owner_id === event.created_by?.id}
         eventMode={event.mode || 'inperson'}
         onAttendanceModeChange={handleAttendanceModeChange}

@@ -5,7 +5,6 @@ import { useEventQueries } from "@/hooks/event/useEventQueries";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
-import { useEffect, useState } from "react";
 import { LotteryWinnerList } from "@/components/lottery/LotteryWinnerList";
 import { LotteryDrawer } from "@/components/lottery/LotteryDrawer";
 import { LotteryWheel } from "@/components/lottery/LotteryWheel";
@@ -14,67 +13,12 @@ const Lottery = () => {
   const { teamSlug, slug } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [isStaff, setIsStaff] = useState(false);
-  const [isSpinning, setIsSpinning] = useState(false);
   
   if (!teamSlug || !slug) return null;
 
-  const { event } = useEventQueries(teamSlug, slug);
+  const { event, participants } = useEventQueries(teamSlug, slug);
 
-  console.log("Event data:", event);
-
-  // Check if current user is staff
-  useEffect(() => {
-    const checkStaffStatus = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user?.id && event?.id) {
-        const { data: eventUser } = await supabase
-          .from('event_users')
-          .select('is_admin, is_staff')
-          .eq('event_id', event.id)
-          .eq('user_id', session.user.id)
-          .single();
-
-        setIsStaff(eventUser?.is_admin || eventUser?.is_staff || false);
-      }
-    };
-
-    checkStaffStatus();
-  }, [event?.id]);
-
-  // Fetch all participants for the wheel
-  const { data: eligibleParticipants, isLoading: isLoadingParticipants } = useQuery({
-    queryKey: ['eligible-participants', event?.id],
-    queryFn: async () => {
-      if (!event?.id) return [];
-      
-      console.log("Fetching eligible participants for event:", event.id);
-
-      const { data: winners } = await supabase
-        .from('lottery_winners')
-        .select('participant_id')
-        .eq('event_id', event.id);
-
-      console.log("Current winners:", winners);
-
-      const winnerIds = winners?.map(w => w.participant_id) || [];
-
-      const { data: participants, error } = await supabase
-        .from('participants')
-        .select('id, nickname, email, attendance_mode')
-        .eq('event_id', event.id)
-        .not('id', 'in', `(${winnerIds.length > 0 ? winnerIds.join(',') : 'null'})`);
-
-      if (error) {
-        console.error("Error fetching participants:", error);
-        return [];
-      }
-
-      console.log("Eligible participants:", participants);
-      return participants || [];
-    },
-    enabled: !!event?.id,
-  });
+  console.log("Lottery - participants:", participants); // Debug log
 
   // Fetch lottery winners
   const { data: winners } = useQuery({
@@ -110,10 +54,13 @@ const Lottery = () => {
 
   // Draw winner mutation
   const drawWinnerMutation = useMutation({
-    mutationFn: async (winner: any) => {
-      if (!event?.id) {
-        throw new Error("No event ID");
+    mutationFn: async () => {
+      if (!event?.id || !participants?.length) {
+        throw new Error("No participants available");
       }
+
+      const randomIndex = Math.floor(Math.random() * participants.length);
+      const winner = participants[randomIndex];
 
       console.log("Selected winner:", winner);
 
@@ -133,12 +80,10 @@ const Lottery = () => {
     },
     onSuccess: (winner) => {
       queryClient.invalidateQueries({ queryKey: ['lottery-winners', event?.id] });
-      queryClient.invalidateQueries({ queryKey: ['eligible-participants', event?.id] });
       toast({
         title: "Winner Selected!",
         description: `${winner.nickname} has been selected as the winner!`,
       });
-      setIsSpinning(false);
     },
     onError: (error) => {
       toast({
@@ -147,21 +92,19 @@ const Lottery = () => {
         variant: "destructive",
       });
       console.error("Error drawing winner:", error);
-      setIsSpinning(false);
     },
   });
 
-  const handleDrawWinner = () => {
-    if (!eligibleParticipants?.length) {
-      toast({
-        title: "Error",
-        description: "No eligible participants remaining",
-        variant: "destructive",
-      });
-      return;
-    }
-    setIsSpinning(true);
-  };
+  if (!event) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container py-8">
+          <div className="text-center">Event not found</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -170,33 +113,31 @@ const Lottery = () => {
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>{event?.name} - Lottery Results</CardTitle>
+              <CardTitle>Lottery Results</CardTitle>
               <CardDescription>
-                Winners from the lottery draw
+                Winners from the lottery draw for {event.name}
               </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
-                {isStaff && (
-                  <LotteryDrawer
-                    isLoading={isLoadingParticipants}
-                    participantCount={eligibleParticipants?.length || 0}
-                    onDraw={handleDrawWinner}
-                    isPending={isSpinning || drawWinnerMutation.isPending}
-                  />
-                )}
+                <LotteryDrawer
+                  isLoading={false}
+                  participantCount={participants?.length || 0}
+                  onDraw={() => drawWinnerMutation.mutate()}
+                  isPending={drawWinnerMutation.isPending}
+                />
 
                 <LotteryWheel
-                  participants={eligibleParticipants || []}
-                  isSpinning={isSpinning}
-                  onSpinComplete={(winner) => drawWinnerMutation.mutate(winner)}
+                  participants={participants || []}
+                  isSpinning={drawWinnerMutation.isPending}
+                  onSpinComplete={(winner) => drawWinnerMutation.mutate()}
                 />
 
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Winners</h3>
                   <LotteryWinnerList 
                     winners={winners || []} 
-                    isStaff={isStaff}
+                    isStaff={true}
                   />
                 </div>
               </div>
