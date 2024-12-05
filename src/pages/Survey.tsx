@@ -119,17 +119,17 @@ const Survey = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-8">
-                {survey.questions.map((question) => (
+                {survey.questions.map((question: any) => (
                   <div key={question.id} className="space-y-4">
                     <h2 className="text-xl font-semibold">{question.question}</h2>
-                    {question.type === "multiple-choice" ? (
+                    {question.type === "multiple-choice" && Array.isArray(question.options) ? (
                       <RadioGroup
                         onValueChange={(value) =>
                           setAnswers((prev) => ({ ...prev, [question.id]: value }))
                         }
                         value={answers[question.id]}
                       >
-                        {question.options?.map((option: string) => (
+                        {question.options.map((option: string) => (
                           <div key={option} className="flex items-center space-x-2">
                             <RadioGroupItem value={option} id={`${question.id}-${option}`} />
                             <Label htmlFor={`${question.id}-${option}`}>{option}</Label>
