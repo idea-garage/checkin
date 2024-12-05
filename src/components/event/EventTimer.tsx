@@ -70,22 +70,20 @@ export const EventTimer = ({ eventDate, eventTime }: EventTimerProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="text-center">
             <div className="text-sm text-muted-foreground mb-1">
+              Event Start
+            </div>
+            <div className="text-2xl font-bold">
+              {format(new Date(`${eventDate}T${eventTime}`), "h:mm a")}
+            </div>
+          </div>
+          <div className="text-center">
+            <div className="text-sm text-muted-foreground mb-1">
               {isStarted ? "Current Time" : "Countdown"}
             </div>
             <div className="text-2xl font-bold">
               {isStarted 
                 ? format(currentTime, "h:mm:ss a")
                 : remainingTime}
-            </div>
-          </div>
-          <div className="text-center">
-            <div className="text-sm text-muted-foreground mb-1">
-              {isStarted ? "Remaining Time" : "Event Start"}
-            </div>
-            <div className="text-2xl font-bold">
-              {isStarted 
-                ? remainingTime
-                : format(new Date(`${eventDate}T${eventTime}`), "h:mm a")}
             </div>
           </div>
         </div>

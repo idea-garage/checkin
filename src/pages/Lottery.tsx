@@ -1,123 +1,100 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useParams } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { useQuery } from "@tanstack/react-query";
+import { useEventQueries } from "@/hooks/event/useEventQueries";
 
 const Lottery = () => {
-  const navigate = useNavigate();
-  const { eventId } = useParams();
+  const { slug } = useParams();
   const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    nickname: "",
-    email: "",
-  });
+  const [winners, setWinners] = useState<Array<{ nickname: string, email: string }>>([]);
+  
+  const { event, participants } = useEventQueries(slug || '');
 
-  const { data: event } = useQuery({
-    queryKey: ["event", eventId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .eq("id", eventId)
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-  });
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    try {
-      const { error } = await supabase
-        .from("participants")
-        .insert([
-          {
-            event_id: eventId,
-            nickname: formData.nickname,
-            email: formData.email,
-          },
-        ]);
-
-      if (error) throw error;
-
+  const selectWinner = () => {
+    if (!participants || participants.length === 0) {
       toast({
-        title: "Registration Successful",
-        description: "You have been registered for the lottery!",
-      });
-
-      // Clear form
-      setFormData({
-        nickname: "",
-        email: "",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Registration Failed",
-        description: error.message,
+        title: "No participants available",
+        description: "There are no participants to select from.",
         variant: "destructive",
       });
+      return;
     }
+
+    // Filter out previous winners
+    const eligibleParticipants = participants.filter(
+      participant => !winners.some(winner => winner.email === participant.email)
+    );
+
+    if (eligibleParticipants.length === 0) {
+      toast({
+        title: "No more participants",
+        description: "All participants have been selected as winners.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Randomly select a winner from eligible participants
+    const randomIndex = Math.floor(Math.random() * eligibleParticipants.length);
+    const winner = eligibleParticipants[randomIndex];
+
+    setWinners(prev => [...prev, winner]);
+    
+    toast({
+      title: "Winner Selected!",
+      description: `Congratulations to ${winner.nickname}!`,
+    });
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container py-8">
-        <div className="max-w-md mx-auto">
+        <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>{event?.name} - Lottery Registration</CardTitle>
+              <CardTitle>{event?.name} - Lottery</CardTitle>
               <CardDescription>
-                Register for the lottery by providing your details below
+                Select winners from the registered participants
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nickname">Nickname</Label>
-                  <Input
-                    id="nickname"
-                    placeholder="Enter your nickname"
-                    value={formData.nickname}
-                    onChange={(e) =>
-                      setFormData({ ...formData, nickname: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={formData.email}
-                    onChange={(e) =>
-                      setFormData({ ...formData, email: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <Button type="submit">Register for Lottery</Button>
-                <div className="space-y-2 text-sm text-muted-foreground">
-                  <p>Want to create and manage your own events?</p>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => navigate(`/register?eventId=${eventId}&from=lottery`)}
+              <div className="space-y-6">
+                <div className="text-center">
+                  <Button 
+                    size="lg" 
+                    onClick={selectWinner}
+                    disabled={!participants || participants.length === 0}
                   >
-                    Create an account
+                    Select Winner
                   </Button>
                 </div>
-              </form>
+
+                {winners.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-lg">Winners</h3>
+                    <div className="divide-y">
+                      {winners.map((winner, index) => (
+                        <div key={index} className="py-3">
+                          <div className="font-medium">
+                            Round {index + 1}: {winner.nickname}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {winner.email}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-sm text-muted-foreground text-center">
+                  Total Participants: {participants?.length || 0}
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
