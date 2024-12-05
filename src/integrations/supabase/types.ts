@@ -18,6 +18,7 @@ export type Database = {
           id: string
           location: string | null
           name: string
+          slug: string
           team_id: string
           time: string
         }
@@ -29,6 +30,7 @@ export type Database = {
           id?: string
           location?: string | null
           name: string
+          slug: string
           team_id: string
           time: string
         }
@@ -40,6 +42,7 @@ export type Database = {
           id?: string
           location?: string | null
           name?: string
+          slug?: string
           team_id?: string
           time?: string
         }
@@ -137,6 +140,7 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
+          is_staff: boolean | null
           team_id: string
         }
         Insert: {
@@ -144,6 +148,7 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
+          is_staff?: boolean | null
           team_id: string
         }
         Update: {
@@ -151,6 +156,7 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
+          is_staff?: boolean | null
           team_id?: string
         }
         Relationships: [
@@ -271,18 +277,29 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          owner_id: string
         }
         Insert: {
           created_at?: string
           id?: string
           name: string
+          owner_id: string
         }
         Update: {
           created_at?: string
           id?: string
           name?: string
+          owner_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "teams_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

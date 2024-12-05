@@ -31,11 +31,11 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-event" element={<CreateEvent />} />
-            <Route path="/e/:eventId" element={<EventRegistration />} />
+            <Route path="/e/:slug" element={<EventRegistration />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/e/:eventId/survey" element={<Survey />} />
-            <Route path="/e/:eventId/lottery" element={<Lottery />} />
-            <Route path="/e/:eventId/details" element={<EventDetails />} />
+            <Route path="/e/:slug/survey" element={<Survey />} />
+            <Route path="/e/:slug/lottery" element={<Lottery />} />
+            <Route path="/e/:slug/details" element={<EventDetails />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>

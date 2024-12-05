@@ -11,9 +11,10 @@ interface ParticipantListProps {
     nickname: string;
     email: string;
   }>;
+  canManageSurvey?: boolean;
 }
 
-export const ParticipantList = ({ eventId, participants }: ParticipantListProps) => {
+export const ParticipantList = ({ eventId, participants, canManageSurvey }: ParticipantListProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -48,13 +49,15 @@ export const ParticipantList = ({ eventId, participants }: ParticipantListProps)
               <Trophy className="mr-2 h-4 w-4" />
               Lottery
             </Button>
-            <Button
-              variant="outline"
-              onClick={() => navigate(`/e/${eventId}/survey`)}
-            >
-              <FileText className="mr-2 h-4 w-4" />
-              Survey
-            </Button>
+            {canManageSurvey && (
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/e/${eventId}/survey`)}
+              >
+                <FileText className="mr-2 h-4 w-4" />
+                Survey
+              </Button>
+            )}
           </div>
           <div className="divide-y">
             {participants?.map((participant) => (

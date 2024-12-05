@@ -1,5 +1,5 @@
 import { Navbar } from "@/components/Navbar";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
@@ -8,15 +8,20 @@ import { ParticipantList } from "@/components/event/ParticipantList";
 import { EventInformation } from "@/components/event/EventInformation";
 
 const EventDetails = () => {
-  const { eventId } = useParams();
+  const { slug } = useParams();
+  const navigate = useNavigate();
 
   const { data: event, isLoading: isLoadingEvent } = useQuery({
-    queryKey: ["event", eventId],
+    queryKey: ["event", slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
-        .select("*")
-        .eq("id", eventId)
+        .select(`
+          *,
+          team:teams(owner_id),
+          created_by:profiles!events_created_by_fkey(is_staff)
+        `)
+        .eq("slug", slug)
         .single();
 
       if (error) throw error;
@@ -25,12 +30,13 @@ const EventDetails = () => {
   });
 
   const { data: participants, isLoading: isLoadingParticipants } = useQuery({
-    queryKey: ["participants", eventId],
+    queryKey: ["participants", event?.id],
+    enabled: !!event?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("participants")
         .select("*")
-        .eq("event_id", eventId);
+        .eq("event_id", event.id);
 
       if (error) throw error;
       return data;
@@ -38,18 +44,44 @@ const EventDetails = () => {
   });
 
   const { data: survey } = useQuery({
-    queryKey: ["survey", eventId],
+    queryKey: ["survey", event?.id],
+    enabled: !!event?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("surveys")
         .select("*")
-        .eq("event_id", eventId)
+        .eq("event_id", event.id)
         .single();
 
       if (error && error.code !== "PGRST116") throw error;
       return data;
     },
   });
+
+  const { data: user } = useQuery({
+    queryKey: ["user"],
+    queryFn: async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) throw error;
+      
+      if (user) {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .single();
+          
+        if (profileError) throw profileError;
+        return { ...user, profile };
+      }
+      return null;
+    },
+  });
+
+  const canManageSurvey = user?.profile && (
+    user.profile.is_staff || 
+    event?.team?.owner_id === user.profile.id
+  );
 
   if (isLoadingEvent || isLoadingParticipants) {
     return (
@@ -99,8 +131,9 @@ const EventDetails = () => {
 
         <div className="grid gap-6 md:grid-cols-2">
           <ParticipantList 
-            eventId={eventId!} 
+            eventId={event.id} 
             participants={participants || []} 
+            canManageSurvey={canManageSurvey}
           />
           <EventInformation 
             description={event.description} 

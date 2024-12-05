@@ -18,6 +18,7 @@ const CreateEvent = () => {
     time: "",
     description: "",
     location: "",
+    slug: "",
   });
   const [user, setUser] = useState<any>(null);
 
@@ -54,12 +55,23 @@ const CreateEvent = () => {
             location: formData.location,
             team_id: profileData.team_id,
             created_by: user.id,
+            slug: formData.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
           },
         ])
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        if (error.code === '23505') {
+          toast({
+            title: "Error",
+            description: "This slug is already in use. Please choose a different one.",
+            variant: "destructive",
+          });
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Event Created",
@@ -98,6 +110,21 @@ const CreateEvent = () => {
                     }
                     required
                   />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="slug">Event URL Slug</Label>
+                  <Input
+                    id="slug"
+                    placeholder="my-awesome-event"
+                    value={formData.slug}
+                    onChange={(e) =>
+                      setFormData({ ...formData, slug: e.target.value })
+                    }
+                    required
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    This will be used in the event URL: checkin.love/e/your-slug
+                  </p>
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
