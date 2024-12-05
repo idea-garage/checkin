@@ -6,6 +6,12 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
+import { EventSchedulesTable, EventUsersTable, EventsTable } from './events';
+import { LotteryWinnersTable, ParticipantsTable } from './participants';
+import { ProfilesTable } from './profiles';
+import { SurveyQuestionsTable, SurveyResponsesTable, SurveysTable } from './surveys';
+import { TeamUsersTable, TeamsTable } from './teams';
+
 export type Database = {
   public: {
     Tables: {
