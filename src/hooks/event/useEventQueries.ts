@@ -57,10 +57,26 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     },
   });
 
+  const { data: schedules } = useQuery({
+    queryKey: ["schedules", event?.id],
+    enabled: !!event?.id,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("event_schedules")
+        .select("*")
+        .eq("event_id", event.id)
+        .order("start_time", { ascending: true });
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   return {
     event,
     isLoadingEvent,
     participants,
     survey,
+    schedules,
   };
 };

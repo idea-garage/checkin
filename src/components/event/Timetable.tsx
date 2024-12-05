@@ -1,10 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock } from "lucide-react";
+import { format } from "date-fns";
 
 interface TimetableItem {
-  time: string;
+  start_time: string;
   title: string;
-  speaker?: string;
+  description?: string | null;
 }
 
 interface TimetableProps {
@@ -25,11 +26,13 @@ export const Timetable = ({ items }: TimetableProps) => {
           {items.map((item, index) => (
             <div key={index} className="py-4">
               <div className="flex items-start gap-4">
-                <div className="w-16 font-mono text-sm">{item.time}</div>
+                <div className="w-16 font-mono text-sm">
+                  {format(new Date(item.start_time), "HH:mm")}
+                </div>
                 <div>
                   <div className="font-medium">{item.title}</div>
-                  {item.speaker && (
-                    <div className="text-sm text-muted-foreground">{item.speaker}</div>
+                  {item.description && (
+                    <div className="text-sm text-muted-foreground">{item.description}</div>
                   )}
                 </div>
               </div>
