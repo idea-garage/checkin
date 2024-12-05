@@ -20,6 +20,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
   const [displayedParticipants, setDisplayedParticipants] = useState<Participant[]>([]);
   const [rotationSpeed, setRotationSpeed] = useState(100); // Initial speed (ms)
+  const [baseRotation, setBaseRotation] = useState(0);
 
   const updateSpeed = useCallback(() => {
     if (isSpinning) {
@@ -74,6 +75,15 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
     };
   }, [isSpinning, participants, onSpinComplete, rotationSpeed, updateSpeed]);
 
+  // Continuous rotation effect
+  useEffect(() => {
+    const rotationInterval = setInterval(() => {
+      setBaseRotation(prev => (prev + 1) % 360);
+    }, 50); // Adjust speed of continuous rotation
+
+    return () => clearInterval(rotationInterval);
+  }, []);
+
   if (participants.length === 0) {
     return (
       <Card className="p-6 text-center">
@@ -85,7 +95,7 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
   // Calculate positions for participants in a circle
   const getParticipantPosition = (index: number, total: number) => {
     const radius = 120; // Adjust this value to change the circle size
-    const angle = (index * 2 * Math.PI) / total;
+    const angle = ((index * 2 * Math.PI) / total) + (baseRotation * Math.PI / 180);
     const x = radius * Math.cos(angle);
     const y = radius * Math.sin(angle);
     return { x, y };
@@ -106,12 +116,11 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
                   scale: 1,
                   x: position.x,
                   y: position.y,
-                  rotate: isSpinning ? [0, 360] : 0
                 }}
                 exit={{ opacity: 0, scale: 0.8 }}
                 transition={{ 
-                  duration: isSpinning ? 0.5 : 0.3,
-                  ease: "easeInOut"
+                  duration: 0.3,
+                  ease: "linear"
                 }}
                 className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center
                   ${isSpinning ? 'border-2 border-primary rounded-full p-4 animate-pulse' : ''}
