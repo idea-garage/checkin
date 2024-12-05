@@ -67,13 +67,18 @@ const EventDetails = () => {
 
   const updateSlugMutation = useMutation({
     mutationFn: async ({ newSlug, eventId }: { newSlug: string; eventId: string }) => {
+      if (!eventId) {
+        console.error("No event ID provided for slug update");
+        throw new Error("Event ID is required");
+      }
+
       // First check if the new slug is already in use by an activated event
       const { data: existingEvent, error: checkError } = await supabase
         .from('events')
         .select('id')
         .eq('slug', newSlug)
         .eq('is_activated', true)
-        .single();
+        .maybeSingle();
 
       if (existingEvent) {
         throw new Error('This slug is already in use by an activated event');
@@ -113,6 +118,11 @@ const EventDetails = () => {
 
   const activateEventMutation = useMutation({
     mutationFn: async (eventId: string) => {
+      if (!eventId) {
+        console.error("No event ID provided for activation");
+        throw new Error("Event ID is required");
+      }
+
       const { data, error } = await supabase
         .from('events')
         .update({ is_activated: true })
@@ -143,6 +153,11 @@ const EventDetails = () => {
     queryKey: ["participants", event?.id],
     enabled: !!event?.id,
     queryFn: async () => {
+      if (!event?.id) {
+        console.error("No event ID available for fetching participants");
+        return [];
+      }
+
       const { data, error } = await supabase
         .from("participants")
         .select("*")
@@ -157,11 +172,16 @@ const EventDetails = () => {
     queryKey: ["survey", event?.id],
     enabled: !!event?.id,
     queryFn: async () => {
+      if (!event?.id) {
+        console.error("No event ID available for fetching survey");
+        return null;
+      }
+
       const { data, error } = await supabase
         .from("surveys")
         .select("*")
         .eq("event_id", event.id)
-        .single();
+        .maybeSingle();
 
       if (error && error.code !== "PGRST116") throw error;
       return data;
@@ -189,28 +209,42 @@ const EventDetails = () => {
   });
 
   useEffect(() => {
-    if (event) {
+    if (event?.id) {
       // Set cookie for participant tracking
       Cookies.set(`event_${event.id}_visited`, 'true', { expires: 365 });
     }
   }, [event]);
 
-  const canManageSurvey = user?.profile && (
-    event?.team?.owner_id === user.profile.id
-  );
+  const canManageSurvey = user?.profile && event?.team?.owner_id === user.profile.id;
 
   const canEditSlug = user?.profile && 
     event?.team?.owner_id === user.profile.id && 
     !event?.is_activated;
 
   const handleUpdateSlug = () => {
-    if (!newSlug || !event) return;
+    if (!newSlug || !event?.id) {
+      console.error("Missing required data for slug update");
+      toast({
+        title: "Error",
+        description: "Missing required data for slug update",
+        variant: "destructive",
+      });
+      return;
+    }
     updateSlugMutation.mutate({ newSlug, eventId: event.id });
     setIsEditing(false);
   };
 
   const handleActivateEvent = () => {
-    if (!event) return;
+    if (!event?.id) {
+      console.error("No event ID available for activation");
+      toast({
+        title: "Error",
+        description: "Event ID is required for activation",
+        variant: "destructive",
+      });
+      return;
+    }
     activateEventMutation.mutate(event.id);
   };
 
