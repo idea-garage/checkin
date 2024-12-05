@@ -12,6 +12,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [user, setUser] = useState<any>(null);
   const [isStaff, setIsStaff] = useState(false);
+  const [teamSlug, setTeamSlug] = useState<string>("");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -21,9 +22,31 @@ const Dashboard = () => {
         setUser(session.user);
         // Check if user is staff or admin
         checkUserRole(session.user.id);
+        // Get team slug
+        getTeamSlug(session.user.id);
       }
     });
   }, [navigate]);
+
+  const getTeamSlug = async (userId: string) => {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("team_id")
+      .eq("id", userId)
+      .single();
+
+    if (profile?.team_id) {
+      const { data: team } = await supabase
+        .from("teams")
+        .select("slug")
+        .eq("id", profile.team_id)
+        .single();
+      
+      if (team?.slug) {
+        setTeamSlug(team.slug);
+      }
+    }
+  };
 
   const checkUserRole = async (userId: string) => {
     const { data: eventUsers } = await supabase
@@ -109,7 +132,7 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/m/${event.slug}/participants`)}
+                          onClick={() => navigate(`/m/${teamSlug}/${event.slug}/participants`)}
                         >
                           <Users className="h-4 w-4 mr-1" />
                           Manage Event
@@ -117,7 +140,7 @@ const Dashboard = () => {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => navigate(`/m/${event.slug}/details`)}
+                          onClick={() => navigate(`/m/${teamSlug}/${event.slug}/details`)}
                         >
                           View Details
                         </Button>
