@@ -74,7 +74,11 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
           .from("surveys")
           .select("*")
           .eq("event_id", event.id)
-          .single();
+          .single()
+          .headers({
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          });
 
         if (error && error.code !== "PGRST116") {
           console.error("Error fetching survey:", error);
