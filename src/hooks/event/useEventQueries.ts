@@ -42,25 +42,23 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
 
       const winnerIds = winners?.map(w => w.participant_id) || [];
       
-      const query = supabase
+      const { data, error } = await supabase
         .from('participants')
         .select('id, nickname, email, attendance_mode')
         .eq('event_id', event.id);
-
-      // Only add the not.in filter if there are winners
-      if (winnerIds.length > 0) {
-        query.not('id', 'in', winnerIds);
-      }
-
-      const { data, error } = await query;
 
       if (error) {
         console.error("Error fetching participants:", error);
         return [];
       }
 
-      console.log("Eligible participants:", data);
-      return data || [];
+      // Filter out winners after fetching all participants
+      const eligibleParticipants = winnerIds.length > 0 
+        ? data?.filter(p => !winnerIds.includes(p.id))
+        : data;
+
+      console.log("Eligible participants:", eligibleParticipants);
+      return eligibleParticipants || [];
     },
   });
 
@@ -74,11 +72,7 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
           .from("surveys")
           .select("*")
           .eq("event_id", event.id)
-          .single()
-          .headers({
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          });
+          .single();
 
         if (error && error.code !== "PGRST116") {
           console.error("Error fetching survey:", error);
