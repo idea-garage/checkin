@@ -1,5 +1,9 @@
 import { SlugManager } from "./SlugManager";
 import { EventModeManager } from "./EventModeManager";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { useState } from "react";
 
 interface EventControlsProps {
   canEditSlug: boolean;
@@ -15,6 +19,8 @@ interface EventControlsProps {
   onModeChange: (value: string) => void;
   broadcastUrl: string | null;
   onBroadcastUrlChange: (value: string) => void;
+  teamSlug: string;
+  eventSlug: string;
 }
 
 export const EventControls = ({
@@ -31,7 +37,23 @@ export const EventControls = ({
   onModeChange,
   broadcastUrl,
   onBroadcastUrlChange,
+  teamSlug,
+  eventSlug,
 }: EventControlsProps) => {
+  const { toast } = useToast();
+  const [showCopied, setShowCopied] = useState(false);
+
+  const copyLink = () => {
+    const url = `${window.location.origin}/e/${teamSlug}/${eventSlug}`;
+    navigator.clipboard.writeText(url);
+    setShowCopied(true);
+    toast({
+      title: "Link copied!",
+      description: "The event link has been copied to your clipboard.",
+    });
+    setTimeout(() => setShowCopied(false), 2000);
+  };
+
   if (!canEditSlug) return null;
 
   return (
@@ -53,6 +75,17 @@ export const EventControls = ({
         broadcastUrl={broadcastUrl}
         onBroadcastUrlChange={onBroadcastUrlChange}
       />
+
+      <div className="flex items-center gap-2 mt-4">
+        <Button variant="outline" onClick={copyLink}>
+          {showCopied ? "Copied!" : "Copy Event Link"}
+        </Button>
+        <Input
+          value={`${window.location.origin}/e/${teamSlug}/${eventSlug}`}
+          readOnly
+          className="flex-1"
+        />
+      </div>
     </div>
   );
 };
