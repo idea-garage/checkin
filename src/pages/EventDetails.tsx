@@ -1,80 +1,22 @@
 import { Navbar } from "@/components/Navbar";
 import { useParams } from "react-router-dom";
-import { ParticipantList } from "@/components/event/ParticipantList";
 import { EventInformation } from "@/components/event/EventInformation";
 import { EventHeader } from "@/components/event/EventHeader";
-import { EventControls } from "@/components/event/EventControls";
 import { EventTimer } from "@/components/event/EventTimer";
-import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
-import { useEventMutations } from "@/hooks/event/useEventMutations";
-import { supabase } from "@/integrations/supabase/client";
 
 const EventDetails = () => {
   const { slug } = useParams();
-  const [newSlug, setNewSlug] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+  const navigate = useNavigate();
 
   if (!slug) {
     console.log("No slug provided");
     return null;
   }
 
-  const { event, isLoadingEvent, participants, survey } = useEventQueries(slug);
-  const { updateSlugMutation, activateEventMutation } = useEventMutations();
-
-  const handleUpdateSlug = () => {
-    if (!newSlug || !event?.id) return;
-    updateSlugMutation.mutate({ newSlug, eventId: event.id });
-    setIsEditing(false);
-  };
-
-  const handleActivateEvent = () => {
-    if (!event?.id) return;
-    activateEventMutation.mutate(event.id);
-  };
-
-  const handleModeChange = async (mode: string) => {
-    if (!event?.id) return;
-    const { error } = await supabase
-      .from('events')
-      .update({ mode })
-      .eq('id', event.id);
-    
-    if (error) {
-      console.error('Error updating event mode:', error);
-    }
-  };
-
-  const handleBroadcastUrlChange = async (broadcastUrl: string) => {
-    if (!event?.id) return;
-    const { error } = await supabase
-      .from('events')
-      .update({ broadcast_url: broadcastUrl })
-      .eq('id', event.id);
-    
-    if (error) {
-      console.error('Error updating broadcast URL:', error);
-    }
-  };
-
-  const handleAttendanceModeChange = async (participantId: string, mode: string) => {
-    const { error } = await supabase
-      .from('participants')
-      .update({ attendance_mode: mode })
-      .eq('id', participantId);
-    
-    if (error) {
-      console.error('Error updating attendance mode:', error);
-    }
-  };
-
-  useEffect(() => {
-    if (event?.id) {
-      Cookies.set(`event_${event.id}_visited`, 'true', { expires: 365 });
-    }
-  }, [event]);
+  const { event, isLoadingEvent, survey } = useEventQueries(slug);
 
   // Calculate whether to show broadcast URL (15 minutes before event)
   const showBroadcast = event && (event.mode === 'online' || event.mode === 'hybrid') && (() => {
@@ -110,53 +52,40 @@ const EventDetails = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container py-8">
-        <div className="flex justify-between items-start mb-8">
+        <div className="max-w-3xl mx-auto">
           <EventHeader
             name={event.name}
             date={event.date}
             time={event.time}
             location={event.location}
           />
-          <EventControls
-            canEditSlug={event.team?.owner_id === event.created_by?.id && !event.is_activated}
-            isEditing={isEditing}
-            newSlug={newSlug}
-            onSlugChange={setNewSlug}
-            onSaveSlug={handleUpdateSlug}
-            onCancelEdit={() => setIsEditing(false)}
-            onStartEdit={() => {
-              setNewSlug(event.slug);
-              setIsEditing(true);
-            }}
-            onActivateEvent={handleActivateEvent}
-            isActivated={!!event.is_activated}
-            mode={event.mode || 'offline'}
-            onModeChange={handleModeChange}
-            broadcastUrl={event.broadcast_url}
-            onBroadcastUrlChange={handleBroadcastUrlChange}
-          />
-        </div>
 
-        <EventTimer 
-          eventDate={event.date} 
-          eventTime={event.time} 
-        />
+          <Tabs
+            defaultValue="details"
+            className="mb-8"
+            onValueChange={(value) => navigate(`/e/${slug}/${value}`)}
+          >
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="details">Details</TabsTrigger>
+              <TabsTrigger value="lottery">Lottery</TabsTrigger>
+              <TabsTrigger value="timetable">Timetable</TabsTrigger>
+            </TabsList>
+          </Tabs>
 
-        <div className="grid gap-6 md:grid-cols-2">
-          <ParticipantList 
-            eventId={event.id} 
-            participants={participants || []} 
-            canManageSurvey={event.team?.owner_id === event.created_by?.id}
-            eventMode={event.mode || 'offline'}
-            onAttendanceModeChange={handleAttendanceModeChange}
+          <EventTimer 
+            eventDate={event.date} 
+            eventTime={event.time} 
           />
-          <EventInformation 
-            description={event.description} 
-            hasSurvey={!!survey}
-            mode={event.mode || 'offline'}
-            broadcastUrl={event.broadcast_url}
-            showBroadcast={!!showBroadcast}
-          />
+
+          <div className="mt-6">
+            <EventInformation 
+              description={event.description} 
+              hasSurvey={!!survey}
+              mode={event.mode || 'offline'}
+              broadcastUrl={event.broadcast_url}
+              showBroadcast={!!showBroadcast}
+            />
+          </div>
         </div>
       </main>
     </div>

@@ -18,7 +18,7 @@ const EventRegistration = () => {
   const [formData, setFormData] = useState({
     nickname: "",
     email: "",
-    attendance_mode: "offline",
+    attendance_mode: "inperson",
   });
 
   const { data: event } = useQuery({
@@ -57,7 +57,7 @@ const EventRegistration = () => {
         description: "You have been registered for the event!",
       });
 
-      navigate(`/e/${slug}/survey`);
+      navigate(`/e/${slug}/details`);
     } catch (error: any) {
       toast({
         title: "Registration Failed",
@@ -132,9 +132,9 @@ const EventRegistration = () => {
                         <Button
                           type="button"
                           className="h-9 px-6 bg-[#22C55E] hover:bg-[#16A34A]"
-                          variant={formData.attendance_mode === "offline" ? "default" : "outline"}
+                          variant={formData.attendance_mode === "inperson" ? "default" : "outline"}
                           onClick={() =>
-                            setFormData({ ...formData, attendance_mode: "offline" })
+                            setFormData({ ...formData, attendance_mode: "inperson" })
                           }
                         >
                           In Person

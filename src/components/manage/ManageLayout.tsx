@@ -1,6 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 interface ManageLayoutProps {
   children: React.ReactNode;
@@ -9,13 +9,15 @@ interface ManageLayoutProps {
 export const ManageLayout = ({ children }: ManageLayoutProps) => {
   const navigate = useNavigate();
   const { slug } = useParams();
+  const location = useLocation();
+  const currentTab = location.pathname.split('/').pop() || 'details';
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="container py-8">
         <Tabs
-          defaultValue="details"
+          value={currentTab}
           className="mb-8"
           onValueChange={(value) => navigate(`/m/${slug}/${value}`)}
         >
