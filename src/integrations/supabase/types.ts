@@ -101,6 +101,7 @@ export type Database = {
       }
       events: {
         Row: {
+          broadcast_url: string | null
           created_at: string
           created_by: string
           date: string
@@ -108,12 +109,14 @@ export type Database = {
           id: string
           is_activated: boolean | null
           location: string | null
+          mode: string
           name: string
           slug: string
           team_id: string
           time: string
         }
         Insert: {
+          broadcast_url?: string | null
           created_at?: string
           created_by: string
           date: string
@@ -121,12 +124,14 @@ export type Database = {
           id?: string
           is_activated?: boolean | null
           location?: string | null
+          mode?: string
           name: string
           slug: string
           team_id: string
           time: string
         }
         Update: {
+          broadcast_url?: string | null
           created_at?: string
           created_by?: string
           date?: string
@@ -134,6 +139,7 @@ export type Database = {
           id?: string
           is_activated?: boolean | null
           location?: string | null
+          mode?: string
           name?: string
           slug?: string
           team_id?: string
@@ -197,6 +203,7 @@ export type Database = {
       }
       participants: {
         Row: {
+          attendance_mode: string
           created_at: string
           email: string
           event_id: string
@@ -204,6 +211,7 @@ export type Database = {
           nickname: string
         }
         Insert: {
+          attendance_mode?: string
           created_at?: string
           email: string
           event_id: string
@@ -211,6 +219,7 @@ export type Database = {
           nickname: string
         }
         Update: {
+          attendance_mode?: string
           created_at?: string
           email?: string
           event_id?: string
