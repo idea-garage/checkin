@@ -20,7 +20,6 @@ const EventDetails = () => {
   const [newSlug, setNewSlug] = useState("");
   const [isEditing, setIsEditing] = useState(false);
 
-  // Add validation for slug
   if (!slug) {
     console.log("No slug provided");
     navigate("/dashboard");
@@ -68,6 +67,23 @@ const EventDetails = () => {
 
   const updateSlugMutation = useMutation({
     mutationFn: async ({ newSlug, eventId }: { newSlug: string; eventId: string }) => {
+      // First check if the new slug is already in use by an activated event
+      const { data: existingEvent, error: checkError } = await supabase
+        .from('events')
+        .select('id')
+        .eq('slug', newSlug)
+        .eq('is_activated', true)
+        .single();
+
+      if (existingEvent) {
+        throw new Error('This slug is already in use by an activated event');
+      }
+
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows returned, which is what we want
+        throw checkError;
+      }
+
+      // If we get here, the slug is available, so update it
       const { data, error } = await supabase
         .from('events')
         .update({ slug: newSlug })
