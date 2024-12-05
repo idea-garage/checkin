@@ -3,11 +3,11 @@ import { useParams } from "react-router-dom";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
 
 const ManageTimetable = () => {
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
 
-  if (!slug) return null;
+  if (!teamSlug || !slug) return null;
 
-  const { event, isLoadingEvent } = useEventQueries(slug);
+  const { event, isLoadingEvent } = useEventQueries(teamSlug, slug);
 
   if (isLoadingEvent) {
     return (
