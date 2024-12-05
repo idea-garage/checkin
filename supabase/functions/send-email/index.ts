@@ -14,14 +14,53 @@ interface EmailRequest {
   html: string;
 }
 
+const createWelcomeEmail = (userEmail: string) => {
+  return {
+    to: [userEmail],
+    subject: "Welcome to Checkin! 🎉",
+    html: `
+      <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
+        <h1 style="color: #333; margin-bottom: 24px;">Welcome to Checkin!</h1>
+        <p style="color: #666; font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
+          We're excited to have you on board! With Checkin, you can:
+        </p>
+        <ul style="color: #666; font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
+          <li>Create and manage events</li>
+          <li>Track participant registrations</li>
+          <li>Create surveys</li>
+          <li>Run fun lottery draws</li>
+        </ul>
+        <p style="color: #666; font-size: 16px; line-height: 1.5; margin-bottom: 24px;">
+          Get started by creating your first event in your dashboard.
+        </p>
+        <a href="https://checkin.love/dashboard" 
+           style="background-color: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+          Go to Dashboard
+        </a>
+        <p style="color: #666; font-size: 14px; margin-top: 48px;">
+          If you have any questions, feel free to reply to this email.
+        </p>
+      </div>
+    `
+  };
+};
+
 const handler = async (req: Request): Promise<Response> => {
-  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const emailRequest: EmailRequest = await req.json();
+    const { type, email } = await req.json();
+    let emailRequest: EmailRequest;
+
+    // Handle different email types
+    if (type === "welcome") {
+      emailRequest = createWelcomeEmail(email);
+    } else {
+      emailRequest = await req.json();
+    }
+
     console.log("Sending email to:", emailRequest.to);
     
     const res = await fetch("https://api.resend.com/emails", {
