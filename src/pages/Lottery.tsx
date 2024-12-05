@@ -8,19 +8,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { useEffect, useState } from "react";
 import { LotteryWinnerList } from "@/components/lottery/LotteryWinnerList";
 import { LotteryDrawer } from "@/components/lottery/LotteryDrawer";
-import { AttendanceMode } from "@/types/enums";
+import { LotteryWheel } from "@/components/lottery/LotteryWheel";
 
 const Lottery = () => {
   const { teamSlug, slug } = useParams();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [isStaff, setIsStaff] = useState(false);
+  const [isSpinning, setIsSpinning] = useState(false);
   
   if (!teamSlug || !slug) return null;
 
   const { event } = useEventQueries(teamSlug, slug);
 
-  console.log("Event data:", event); // Debug log
+  console.log("Event data:", event);
 
   // Check if current user is staff
   useEffect(() => {
@@ -41,20 +42,20 @@ const Lottery = () => {
     checkStaffStatus();
   }, [event?.id]);
 
-  // Fetch eligible participants for staff
+  // Fetch all participants for the wheel
   const { data: eligibleParticipants, isLoading: isLoadingParticipants } = useQuery({
     queryKey: ['eligible-participants', event?.id],
     queryFn: async () => {
-      if (!event?.id || !isStaff) return [];
+      if (!event?.id) return [];
       
-      console.log("Fetching eligible participants for event:", event.id); // Debug log
+      console.log("Fetching eligible participants for event:", event.id);
 
       const { data: winners } = await supabase
         .from('lottery_winners')
         .select('participant_id')
         .eq('event_id', event.id);
 
-      console.log("Current winners:", winners); // Debug log
+      console.log("Current winners:", winners);
 
       const winnerIds = winners?.map(w => w.participant_id) || [];
 
@@ -62,18 +63,17 @@ const Lottery = () => {
         .from('participants')
         .select('id, nickname, email, attendance_mode')
         .eq('event_id', event.id)
-        .eq('attendance_mode', AttendanceMode.IN_PERSON)
         .not('id', 'in', `(${winnerIds.length > 0 ? winnerIds.join(',') : 'null'})`);
 
       if (error) {
-        console.error("Error fetching participants:", error); // Debug log
+        console.error("Error fetching participants:", error);
         return [];
       }
 
-      console.log("Eligible participants:", participants); // Debug log
+      console.log("Eligible participants:", participants);
       return participants || [];
     },
-    enabled: !!event?.id && isStaff,
+    enabled: !!event?.id,
   });
 
   // Fetch lottery winners
@@ -82,7 +82,7 @@ const Lottery = () => {
     queryFn: async () => {
       if (!event?.id) return [];
       
-      console.log("Fetching lottery winners for event:", event.id); // Debug log
+      console.log("Fetching lottery winners for event:", event.id);
 
       const { data, error } = await supabase
         .from('lottery_winners')
@@ -98,11 +98,11 @@ const Lottery = () => {
         .order('round', { ascending: true });
 
       if (error) {
-        console.error("Error fetching winners:", error); // Debug log
+        console.error("Error fetching winners:", error);
         throw error;
       }
 
-      console.log("Current winners:", data); // Debug log
+      console.log("Current winners:", data);
       return data;
     },
     enabled: !!event?.id,
@@ -110,15 +110,12 @@ const Lottery = () => {
 
   // Draw winner mutation
   const drawWinnerMutation = useMutation({
-    mutationFn: async () => {
-      if (!event?.id || !eligibleParticipants?.length) {
-        throw new Error("No eligible participants");
+    mutationFn: async (winner: any) => {
+      if (!event?.id) {
+        throw new Error("No event ID");
       }
 
-      const randomIndex = Math.floor(Math.random() * eligibleParticipants.length);
-      const winner = eligibleParticipants[randomIndex];
-
-      console.log("Selected winner:", winner); // Debug log
+      console.log("Selected winner:", winner);
 
       const currentRound = winners?.length || 0;
       const nextRound = currentRound + 1;
@@ -141,6 +138,7 @@ const Lottery = () => {
         title: "Winner Selected!",
         description: `${winner.nickname} has been selected as the winner!`,
       });
+      setIsSpinning(false);
     },
     onError: (error) => {
       toast({
@@ -149,8 +147,21 @@ const Lottery = () => {
         variant: "destructive",
       });
       console.error("Error drawing winner:", error);
+      setIsSpinning(false);
     },
   });
+
+  const handleDrawWinner = () => {
+    if (!eligibleParticipants?.length) {
+      toast({
+        title: "Error",
+        description: "No eligible participants remaining",
+        variant: "destructive",
+      });
+      return;
+    }
+    setIsSpinning(true);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -170,10 +181,16 @@ const Lottery = () => {
                   <LotteryDrawer
                     isLoading={isLoadingParticipants}
                     participantCount={eligibleParticipants?.length || 0}
-                    onDraw={() => drawWinnerMutation.mutate()}
-                    isPending={drawWinnerMutation.isPending}
+                    onDraw={handleDrawWinner}
+                    isPending={isSpinning || drawWinnerMutation.isPending}
                   />
                 )}
+
+                <LotteryWheel
+                  participants={eligibleParticipants || []}
+                  isSpinning={isSpinning}
+                  onSpinComplete={(winner) => drawWinnerMutation.mutate(winner)}
+                />
 
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Winners</h3>
