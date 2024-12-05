@@ -1,6 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { SlugManager } from "./SlugManager";
+import { EventModeManager } from "./EventModeManager";
 
 interface EventControlsProps {
   canEditSlug: boolean;
@@ -37,51 +36,23 @@ export const EventControls = ({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        {isEditing ? (
-          <>
-            <Input
-              value={newSlug}
-              onChange={(e) => onSlugChange(e.target.value)}
-              placeholder="New slug"
-              className="w-48"
-            />
-            <Button onClick={onSaveSlug}>Save</Button>
-            <Button variant="outline" onClick={onCancelEdit}>
-              Cancel
-            </Button>
-          </>
-        ) : (
-          <>
-            <Button variant="outline" onClick={onStartEdit}>
-              Edit Slug
-            </Button>
-            {!isActivated && <Button onClick={onActivateEvent}>Activate Event</Button>}
-          </>
-        )}
-      </div>
+      <SlugManager
+        isEditing={isEditing}
+        newSlug={newSlug}
+        onSlugChange={onSlugChange}
+        onSaveSlug={onSaveSlug}
+        onCancelEdit={onCancelEdit}
+        onStartEdit={onStartEdit}
+        onActivateEvent={onActivateEvent}
+        isActivated={isActivated}
+      />
       
-      <div className="flex items-center gap-4">
-        <Select value={mode} onValueChange={onModeChange}>
-          <SelectTrigger className="w-48">
-            <SelectValue placeholder="Select event mode" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="offline">Offline Only</SelectItem>
-            <SelectItem value="online">Online Only</SelectItem>
-            <SelectItem value="hybrid">Hybrid (Online & Offline)</SelectItem>
-          </SelectContent>
-        </Select>
-        
-        {(mode === 'online' || mode === 'hybrid') && (
-          <Input
-            value={broadcastUrl || ''}
-            onChange={(e) => onBroadcastUrlChange(e.target.value)}
-            placeholder="Broadcast URL"
-            className="w-64"
-          />
-        )}
-      </div>
+      <EventModeManager
+        mode={mode}
+        onModeChange={onModeChange}
+        broadcastUrl={broadcastUrl}
+        onBroadcastUrlChange={onBroadcastUrlChange}
+      />
     </div>
   );
 };
