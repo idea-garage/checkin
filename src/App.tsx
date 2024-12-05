@@ -11,6 +11,9 @@ import Dashboard from "./pages/Dashboard";
 import CreateEvent from "./pages/CreateEvent";
 import EventRegistration from "./pages/EventRegistration";
 import Settings from "./pages/Settings";
+import Survey from "./pages/Survey";
+import Lottery from "./pages/Lottery";
+import EventDetails from "./pages/EventDetails";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +31,9 @@ const App = () => (
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/e/:eventId" element={<EventRegistration />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/e/:eventId/survey" element={<Survey />} />
+            <Route path="/e/:eventId/lottery" element={<Lottery />} />
+            <Route path="/e/:eventId/details" element={<EventDetails />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
