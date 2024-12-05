@@ -31,7 +31,23 @@ const Login = () => {
             <CardContent>
               <Auth
                 supabaseClient={supabase}
-                appearance={{ theme: ThemeSupa }}
+                appearance={{
+                  theme: ThemeSupa,
+                  variables: {
+                    default: {
+                      colors: {
+                        inputText: "black",
+                        inputBackground: "white",
+                      },
+                    },
+                    dark: {
+                      colors: {
+                        inputText: "white",
+                        inputBackground: "rgb(30, 41, 59)",
+                      },
+                    },
+                  },
+                }}
                 providers={[]}
                 theme="light"
               />
