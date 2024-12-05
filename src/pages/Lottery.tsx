@@ -62,6 +62,7 @@ const Lottery = () => {
         .from('participants')
         .select('id, nickname, email, attendance_mode')
         .eq('event_id', event.id)
+        .eq('attendance_mode', AttendanceMode.IN_PERSON)
         .not('id', 'in', `(${winnerIds.length > 0 ? winnerIds.join(',') : 'null'})`);
 
       if (error) {
