@@ -9,6 +9,96 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      event_schedules: {
+        Row: {
+          created_at: string
+          created_by: string
+          description: string | null
+          end_time: string
+          event_id: string
+          id: string
+          start_time: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_time: string
+          event_id: string
+          id?: string
+          start_time: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          end_time?: string
+          event_id?: string
+          id?: string
+          start_time?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_schedules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_schedules_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_users: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          is_admin: boolean | null
+          is_staff: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          is_admin?: boolean | null
+          is_staff?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_admin?: boolean | null
+          is_staff?: boolean | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_users_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           created_at: string
@@ -140,7 +230,6 @@ export type Database = {
           email: string
           full_name: string | null
           id: string
-          is_staff: boolean | null
           team_id: string
         }
         Insert: {
@@ -148,7 +237,6 @@ export type Database = {
           email: string
           full_name?: string | null
           id: string
-          is_staff?: boolean | null
           team_id: string
         }
         Update: {
@@ -156,7 +244,6 @@ export type Database = {
           email?: string
           full_name?: string | null
           id?: string
-          is_staff?: boolean | null
           team_id?: string
         }
         Relationships: [
@@ -268,6 +355,48 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_users: {
+        Row: {
+          created_at: string
+          id: string
+          is_admin: boolean | null
+          is_staff: boolean | null
+          team_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_admin?: boolean | null
+          is_staff?: boolean | null
+          team_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_admin?: boolean | null
+          is_staff?: boolean | null
+          team_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_users_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_users_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

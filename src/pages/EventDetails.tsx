@@ -6,14 +6,24 @@ import { format } from "date-fns";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { ParticipantList } from "@/components/event/ParticipantList";
 import { EventInformation } from "@/components/event/EventInformation";
+import { useToast } from "@/components/ui/use-toast";
 
 const EventDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  // Add validation for slug
+  if (!slug) {
+    console.log("No slug provided");
+    navigate("/dashboard");
+    return null;
+  }
 
   const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ["event", slug],
     queryFn: async () => {
+      console.log("Fetching event with slug:", slug);
       const { data, error } = await supabase
         .from("events")
         .select(`
@@ -24,8 +34,26 @@ const EventDetails = () => {
         .eq("slug", slug)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching event:", error);
+        throw error;
+      }
+      
+      if (!data) {
+        console.log("No event found with slug:", slug);
+        throw new Error("Event not found");
+      }
+
       return data;
+    },
+    onError: (error) => {
+      console.error("Query error:", error);
+      toast({
+        title: "Error",
+        description: "Event not found",
+        variant: "destructive",
+      });
+      navigate("/dashboard");
     },
   });
 
@@ -79,7 +107,6 @@ const EventDetails = () => {
   });
 
   const canManageSurvey = user?.profile && (
-    user.profile.is_staff || 
     event?.team?.owner_id === user.profile.id
   );
 
