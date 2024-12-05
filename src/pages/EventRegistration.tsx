@@ -98,7 +98,7 @@ const EventRegistration = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-2">
                     <Label htmlFor="nickname">Nickname</Label>
                     <Input
@@ -131,6 +131,7 @@ const EventRegistration = () => {
                       <div className="flex gap-2">
                         <Button
                           type="button"
+                          className="h-9 px-6 bg-[#22C55E] hover:bg-[#16A34A]"
                           variant={formData.attendance_mode === "offline" ? "default" : "outline"}
                           onClick={() =>
                             setFormData({ ...formData, attendance_mode: "offline" })
@@ -140,6 +141,7 @@ const EventRegistration = () => {
                         </Button>
                         <Button
                           type="button"
+                          className="h-9 px-6"
                           variant={formData.attendance_mode === "online" ? "default" : "outline"}
                           onClick={() =>
                             setFormData({ ...formData, attendance_mode: "online" })
@@ -151,7 +153,7 @@ const EventRegistration = () => {
                     </div>
                   )}
 
-                  <Button type="submit" className="w-full">
+                  <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
                     Register for Event
                   </Button>
                 </form>
