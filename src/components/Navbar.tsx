@@ -34,7 +34,7 @@ export function Navbar() {
           onClick={() => navigate("/")} 
           className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary cursor-pointer"
         >
-          checkin.love
+          Checkin
         </h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />

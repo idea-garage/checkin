@@ -28,7 +28,7 @@ const Register = () => {
             <CardHeader>
               <CardTitle>Create an account</CardTitle>
               <CardDescription>
-                Get started with checkin.love by creating your account
+                Get started with Checkin by creating your account
               </CardDescription>
             </CardHeader>
             <CardContent>

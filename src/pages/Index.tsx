@@ -9,7 +9,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-b from-background to-muted">
       <nav className="container flex items-center justify-between py-4">
         <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-          checkin.love
+          Checkin
         </h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
