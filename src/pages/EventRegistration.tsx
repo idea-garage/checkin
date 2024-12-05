@@ -125,7 +125,7 @@ const EventRegistration = () => {
                     />
                   </div>
 
-                  {event.mode !== 'offline' && (
+                  {event.mode !== 'inperson' && (
                     <div className="space-y-2">
                       <Label>How will you attend?</Label>
                       <div className="flex gap-2">

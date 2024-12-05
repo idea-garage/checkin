@@ -81,7 +81,7 @@ const EventDetails = () => {
             <EventInformation 
               description={event.description} 
               hasSurvey={!!survey}
-              mode={event.mode || 'offline'}
+              mode={event.mode}
               broadcastUrl={event.broadcast_url}
               showBroadcast={!!showBroadcast}
             />
