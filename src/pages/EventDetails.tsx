@@ -5,7 +5,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import { Clipboard, Users, FileText, Trophy } from "lucide-react";
+import { Clipboard, Users, FileText, Trophy, Calendar, Clock, MapPin } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const EventDetails = () => {
@@ -91,10 +91,22 @@ const EventDetails = () => {
       <main className="container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold mb-2">{event.name}</h1>
-          <p className="text-muted-foreground">
-            {format(new Date(event.date), "MMMM d, yyyy")} at{" "}
-            {format(new Date(`2000-01-01T${event.time}`), "h:mm a")}
-          </p>
+          <div className="flex flex-wrap gap-4 text-muted-foreground">
+            <div className="flex items-center gap-1">
+              <Calendar className="h-4 w-4" />
+              {format(new Date(event.date), "MMMM d, yyyy")}
+            </div>
+            <div className="flex items-center gap-1">
+              <Clock className="h-4 w-4" />
+              {format(new Date(`2000-01-01T${event.time}`), "h:mm a")}
+            </div>
+            {event.location && (
+              <div className="flex items-center gap-1">
+                <MapPin className="h-4 w-4" />
+                {event.location}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
@@ -107,7 +119,7 @@ const EventDetails = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button onClick={copyRegistrationLink}>
                     <Clipboard className="mr-2 h-4 w-4" />
                     Copy Registration Link
@@ -143,22 +155,20 @@ const EventDetails = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Event Details</CardTitle>
+              <CardTitle>Event Information</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 {event.description && (
-                  <p className="text-muted-foreground">{event.description}</p>
-                )}
-                {event.location && (
                   <div>
-                    <div className="font-medium">Location</div>
-                    <p className="text-muted-foreground">{event.location}</p>
+                    <div className="font-medium mb-1">Description</div>
+                    <p className="text-muted-foreground">{event.description}</p>
                   </div>
                 )}
                 <div>
-                  <div className="font-medium">Survey Status</div>
-                  <p className="text-muted-foreground">
+                  <div className="font-medium mb-1">Survey Status</div>
+                  <p className="text-muted-foreground flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
                     {survey ? "Survey available" : "No survey created yet"}
                   </p>
                 </div>
