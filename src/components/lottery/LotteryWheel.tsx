@@ -82,34 +82,48 @@ export const LotteryWheel = ({ participants, isSpinning, onSpinComplete }: Lotte
     );
   }
 
+  // Calculate positions for participants in a circle
+  const getParticipantPosition = (index: number, total: number) => {
+    const radius = 120; // Adjust this value to change the circle size
+    const angle = (index * 2 * Math.PI) / total;
+    const x = radius * Math.cos(angle);
+    const y = radius * Math.sin(angle);
+    return { x, y };
+  };
+
   return (
-    <Card className="relative overflow-hidden min-h-[300px] flex items-center justify-center bg-card">
-      <div className="w-64 h-64 relative">
+    <Card className="relative overflow-hidden min-h-[400px] flex items-center justify-center bg-card">
+      <div className="relative w-full h-full">
         <AnimatePresence>
-          {displayedParticipants.map((participant, index) => (
-            <motion.div
-              key={participant.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ 
-                opacity: 1, 
-                scale: 1,
-                rotate: isSpinning ? [0, 360] : 0 // Add rotation when spinning
-              }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ 
-                duration: isSpinning ? 0.5 : 0.3,
-                ease: "easeInOut"
-              }}
-              className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center
-                ${isSpinning ? 'border-2 border-primary rounded-full p-4 animate-pulse' : ''}
-                ${!isSpinning && displayedParticipants.length === 1 ? 'border-4 border-primary rounded-full p-6 shadow-lg' : ''}`}
-            >
-              <h3 className="text-2xl font-bold mb-1">{participant.nickname}</h3>
-              <p className="text-sm text-muted-foreground">
-                {participant.attendance_mode === 'online' ? 'Online' : 'In-Person'} Participant
-              </p>
-            </motion.div>
-          ))}
+          {displayedParticipants.map((participant, index) => {
+            const position = getParticipantPosition(index, displayedParticipants.length);
+            return (
+              <motion.div
+                key={participant.id}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ 
+                  opacity: 1, 
+                  scale: 1,
+                  x: position.x,
+                  y: position.y,
+                  rotate: isSpinning ? [0, 360] : 0
+                }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ 
+                  duration: isSpinning ? 0.5 : 0.3,
+                  ease: "easeInOut"
+                }}
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center
+                  ${isSpinning ? 'border-2 border-primary rounded-full p-4 animate-pulse' : ''}
+                  ${!isSpinning && displayedParticipants.length === 1 ? 'border-4 border-primary rounded-full p-6 shadow-lg' : ''}`}
+              >
+                <h3 className="text-xl font-bold mb-1">{participant.nickname}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {participant.attendance_mode === 'online' ? 'Online' : 'In-Person'} Participant
+                </p>
+              </motion.div>
+            );
+          })}
         </AnimatePresence>
       </div>
     </Card>
