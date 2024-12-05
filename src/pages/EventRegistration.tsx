@@ -8,9 +8,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
+import { generateEventUrl } from "@/utils/urlUtils";
 
 const EventRegistration = () => {
-  const { slug } = useParams();
+  const { teamSlug, slug } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
@@ -40,6 +41,15 @@ const EventRegistration = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!teamSlug || !slug) {
+      toast({
+        title: "Error",
+        description: "Invalid event URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from("participants")
@@ -59,7 +69,9 @@ const EventRegistration = () => {
         description: "You have been registered for the event!",
       });
 
-      navigate(`/e/${slug}/details`);
+      // Use the utility function to generate the redirect URL
+      const redirectUrl = generateEventUrl(teamSlug, slug);
+      navigate(redirectUrl.replace(window.location.origin, ''));
     } catch (error: any) {
       toast({
         title: "Registration Failed",

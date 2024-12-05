@@ -4,7 +4,7 @@ import { Clipboard, Users, FileText, Trophy } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate, useParams } from "react-router-dom";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
+import { generateEventUrl, generateRegistrationUrl } from "@/utils/urlUtils";
 
 interface ParticipantListProps {
   eventId: string;
@@ -31,13 +31,16 @@ export const ParticipantList = ({
   const { toast } = useToast();
 
   const copyRegistrationLink = async () => {
-    const link = `${window.location.origin}/e/${teamSlug}/${slug}`;
+    if (!teamSlug || !slug) return;
+    const link = generateRegistrationUrl(teamSlug, slug);
     navigator.clipboard.writeText(link);
     toast({
       title: "Link Copied",
       description: "Registration link has been copied to clipboard",
     });
   };
+
+  if (!teamSlug || !slug) return null;
 
   return (
     <Card>
@@ -57,7 +60,7 @@ export const ParticipantList = ({
             {eventMode !== 'online' && (
               <Button
                 variant="outline"
-                onClick={() => navigate(`/e/${teamSlug}/${slug}/lottery`)}
+                onClick={() => navigate(generateEventUrl(teamSlug, slug, 'public', 'lottery').replace(window.location.origin, ''))}
               >
                 <Trophy className="mr-2 h-4 w-4" />
                 Lottery
@@ -66,7 +69,7 @@ export const ParticipantList = ({
             {canManageSurvey && (
               <Button
                 variant="outline"
-                onClick={() => navigate(`/e/${teamSlug}/${slug}/survey`)}
+                onClick={() => navigate(generateEventUrl(teamSlug, slug, 'public', 'survey').replace(window.location.origin, ''))}
               >
                 <FileText className="mr-2 h-4 w-4" />
                 Survey
