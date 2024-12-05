@@ -36,20 +36,17 @@ const Login = () => {
                   variables: {
                     default: {
                       colors: {
-                        inputText: "black",
-                        inputBackground: "white",
-                      },
-                    },
-                    dark: {
-                      colors: {
-                        inputText: "white",
-                        inputBackground: "rgb(30, 41, 59)",
+                        brand: '#306EEA',
+                        brandAccent: '#1d4ed8',
+                        inputText: 'hsl(var(--foreground))',
+                        inputBackground: 'hsl(var(--background))',
+                        inputBorder: 'hsl(var(--border))',
                       },
                     },
                   },
                 }}
                 providers={[]}
-                theme="light"
+                theme="dark"
               />
             </CardContent>
           </Card>
