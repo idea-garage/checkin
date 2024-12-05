@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Navbar } from "@/components/Navbar";
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -10,21 +11,22 @@ import { useToast } from "@/components/ui/use-toast";
 import { useQuery } from "@tanstack/react-query";
 
 const EventRegistration = () => {
-  const { eventId } = useParams();
+  const { slug } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [formData, setFormData] = useState({
     nickname: "",
     email: "",
+    attendance_mode: "offline",
   });
 
   const { data: event } = useQuery({
-    queryKey: ["event", eventId],
+    queryKey: ["event", slug],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("events")
         .select("*")
-        .eq("id", eventId)
+        .eq("slug", slug)
         .single();
 
       if (error) throw error;
@@ -40,9 +42,10 @@ const EventRegistration = () => {
         .from("participants")
         .insert([
           {
-            event_id: eventId,
+            event_id: event?.id,
             nickname: formData.nickname,
             email: formData.email,
+            attendance_mode: formData.attendance_mode,
           },
         ]);
 
@@ -54,7 +57,7 @@ const EventRegistration = () => {
       });
 
       // Optionally redirect to a success page or survey
-      navigate(`/e/${eventId}/survey`);
+      navigate(`/e/${slug}/survey`);
     } catch (error: any) {
       toast({
         title: "Registration Failed",
@@ -103,12 +106,40 @@ const EventRegistration = () => {
                     required
                   />
                 </div>
+
+                {event?.mode !== 'offline' && (
+                  <div className="space-y-2">
+                    <Label>Attendance Mode</Label>
+                    <RadioGroup
+                      value={formData.attendance_mode}
+                      onValueChange={(value) =>
+                        setFormData({ ...formData, attendance_mode: value })
+                      }
+                      className="flex flex-col space-y-1"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="offline" id="offline" />
+                        <Label htmlFor="offline">Offline</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="online" id="online" />
+                        <Label htmlFor="online">Online</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                )}
+
+                <Button type="submit" className="w-full">
+                  Register
+                </Button>
+
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <p>Want to create and manage your own events?</p>
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => navigate(`/register?eventId=${eventId}`)}
+                    onClick={() => navigate(`/register?eventId=${slug}`)}
+                    className="w-full"
                   >
                     Create an account
                   </Button>
