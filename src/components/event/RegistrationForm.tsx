@@ -2,14 +2,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AttendanceSelector } from "./AttendanceSelector";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface RegistrationFormProps {
   formData: {
     nickname: string;
     email: string;
     attendance_mode: string;
+    createAccount: boolean;
   };
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: string | boolean) => void;
   onSubmit: (e: React.FormEvent) => void;
   showAttendanceMode: boolean;
 }
@@ -53,6 +55,17 @@ export const RegistrationForm = ({
           />
         </div>
       )}
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="createAccount"
+          checked={formData.createAccount}
+          onCheckedChange={(checked) => onChange("createAccount", checked as boolean)}
+        />
+        <Label htmlFor="createAccount" className="text-sm">
+          Create an account for future events
+        </Label>
+      </div>
 
       <Button type="submit" className="w-full bg-primary hover:bg-primary/90">
         Register for Event

@@ -18,6 +18,7 @@ const EventRegistration = () => {
     nickname: "",
     email: "",
     attendance_mode: "inperson",
+    createAccount: false,
   });
 
   const { data: event } = useQuery({
@@ -34,7 +35,7 @@ const EventRegistration = () => {
     },
   });
 
-  const handleFormChange = (field: string, value: string) => {
+  const handleFormChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
@@ -51,6 +52,48 @@ const EventRegistration = () => {
     }
 
     try {
+      let userId = null;
+
+      // If user wants to create an account
+      if (formData.createAccount) {
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: formData.email,
+          password: crypto.randomUUID(), // Generate a random password
+          options: {
+            data: {
+              full_name: formData.nickname,
+            },
+          },
+        });
+
+        if (authError) throw authError;
+        userId = authData.user?.id;
+
+        // Send welcome email with magic link
+        const { error: emailError } = await supabase.functions.invoke('send-email', {
+          body: {
+            type: 'welcome-participant',
+            email: formData.email,
+            to: [formData.email],
+            subject: 'Welcome to Checkin! Complete your registration',
+            html: `
+              <h1>Welcome to Checkin!</h1>
+              <p>Thank you for registering for the event. To access your account in the future, click the button below:</p>
+              <a href="${window.location.origin}/login" 
+                 style="background-color: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+                Login to Your Account
+              </a>
+              <p>You can use the "Forgot Password" option to set your password.</p>
+            `
+          }
+        });
+
+        if (emailError) {
+          console.error('Error sending welcome email:', emailError);
+        }
+      }
+
+      // Register participant
       const { error } = await supabase
         .from("participants")
         .insert([
@@ -59,6 +102,7 @@ const EventRegistration = () => {
             nickname: formData.nickname,
             email: formData.email,
             attendance_mode: formData.attendance_mode,
+            user_id: userId,
           },
         ]);
 
@@ -66,10 +110,11 @@ const EventRegistration = () => {
 
       toast({
         title: "Registration Successful",
-        description: "You have been registered for the event!",
+        description: formData.createAccount 
+          ? "You have been registered! Check your email to complete your account setup."
+          : "You have been registered for the event!",
       });
 
-      // Use the utility function to generate the redirect URL
       const redirectUrl = generateEventUrl(teamSlug, slug);
       navigate(redirectUrl.replace(window.location.origin, ''));
     } catch (error: any) {

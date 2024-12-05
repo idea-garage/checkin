@@ -209,6 +209,7 @@ export type Database = {
           event_id: string
           id: string
           nickname: string
+          user_id: string | null
         }
         Insert: {
           attendance_mode?: string
@@ -217,6 +218,7 @@ export type Database = {
           event_id: string
           id?: string
           nickname: string
+          user_id?: string | null
         }
         Update: {
           attendance_mode?: string
@@ -225,6 +227,7 @@ export type Database = {
           event_id?: string
           id?: string
           nickname?: string
+          user_id?: string | null
         }
         Relationships: [
           {
