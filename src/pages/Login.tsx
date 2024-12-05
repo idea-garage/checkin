@@ -3,10 +3,10 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navbar } from "@/components/Navbar";
 
-const Register = () => {
+const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,17 +26,13 @@ const Register = () => {
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>Create an account</CardTitle>
-              <CardDescription>
-                Get started with checkin.love by creating your account
-              </CardDescription>
+              <CardTitle>Welcome Back</CardTitle>
             </CardHeader>
             <CardContent>
               <Auth
                 supabaseClient={supabase}
                 appearance={{ theme: ThemeSupa }}
                 providers={[]}
-                view="sign_up"
                 theme="light"
               />
             </CardContent>
@@ -47,4 +43,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default Login;

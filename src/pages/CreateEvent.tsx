@@ -4,11 +4,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/Navbar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     date: "",
@@ -16,12 +19,61 @@ const CreateEvent = () => {
     description: "",
     location: "",
   });
+  const [user, setUser] = useState<any>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/login");
+      } else {
+        setUser(session.user);
+      }
+    });
+  }, [navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement event creation logic
-    console.log("Event data:", formData);
-    navigate("/dashboard");
+    
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("team_id")
+        .eq("id", user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      const { data, error } = await supabase
+        .from("events")
+        .insert([
+          {
+            name: formData.name,
+            date: formData.date,
+            time: formData.time,
+            description: formData.description,
+            location: formData.location,
+            team_id: profileData.team_id,
+            created_by: user.id,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Event Created",
+        description: "Your event has been created successfully!",
+      });
+
+      navigate("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   };
 
   return (

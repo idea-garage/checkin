@@ -9,7 +9,281 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          created_at: string
+          created_by: string
+          date: string
+          description: string | null
+          id: string
+          location: string | null
+          name: string
+          team_id: string
+          time: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          date: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          name: string
+          team_id: string
+          time: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          date?: string
+          description?: string | null
+          id?: string
+          location?: string | null
+          name?: string
+          team_id?: string
+          time?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lottery_winners: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          participant_id: string
+          round: number
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          participant_id: string
+          round: number
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          participant_id?: string
+          round?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lottery_winners_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lottery_winners_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      participants: {
+        Row: {
+          created_at: string
+          email: string
+          event_id: string
+          id: string
+          nickname: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          event_id: string
+          id?: string
+          nickname: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          event_id?: string
+          id?: string
+          nickname?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "participants_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          team_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id: string
+          team_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          team_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_questions: {
+        Row: {
+          created_at: string
+          id: string
+          options: Json | null
+          question: string
+          survey_id: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          options?: Json | null
+          question: string
+          survey_id: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          options?: Json | null
+          question?: string
+          survey_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_questions_survey_id_fkey"
+            columns: ["survey_id"]
+            isOneToOne: false
+            referencedRelation: "surveys"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      survey_responses: {
+        Row: {
+          created_at: string
+          id: string
+          participant_id: string
+          question_id: string
+          response: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          participant_id: string
+          question_id: string
+          response: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          participant_id?: string
+          question_id?: string
+          response?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "survey_responses_participant_id_fkey"
+            columns: ["participant_id"]
+            isOneToOne: false
+            referencedRelation: "participants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "survey_responses_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "survey_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      surveys: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surveys_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 
 import Index from "./pages/Index";
 import Register from "./pages/Register";
+import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import CreateEvent from "./pages/CreateEvent";
 import EventRegistration from "./pages/EventRegistration";
@@ -27,6 +28,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/create-event" element={<CreateEvent />} />
             <Route path="/e/:eventId" element={<EventRegistration />} />

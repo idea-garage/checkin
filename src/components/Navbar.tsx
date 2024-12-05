@@ -1,9 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
 
 export function Navbar() {
   const navigate = useNavigate();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/");
+  };
 
   return (
     <nav className="border-b">
@@ -16,10 +38,23 @@ export function Navbar() {
         </h1>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <Button variant="outline" onClick={() => navigate("/login")}>
-            Login
-          </Button>
-          <Button onClick={() => navigate("/register")}>Get Started</Button>
+          {user ? (
+            <>
+              <Button variant="outline" onClick={() => navigate("/dashboard")}>
+                Dashboard
+              </Button>
+              <Button variant="outline" onClick={handleSignOut}>
+                Sign Out
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="outline" onClick={() => navigate("/login")}>
+                Login
+              </Button>
+              <Button onClick={() => navigate("/register")}>Get Started</Button>
+            </>
+          )}
         </div>
       </div>
     </nav>
