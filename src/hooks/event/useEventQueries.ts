@@ -5,6 +5,7 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
   const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ["event", teamSlug, eventSlug],
     queryFn: async () => {
+      console.log("Fetching event details for:", teamSlug, eventSlug);
       const { data, error } = await supabase
         .from("events")
         .select(`
@@ -24,6 +25,7 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
         .single();
 
       if (error) throw error;
+      console.log("Event data:", data);
       return data;
     },
   });
@@ -32,13 +34,33 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     queryKey: ["participants", event?.id],
     enabled: !!event?.id,
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from("participants")
-        .select("*")
-        .eq("event_id", event.id);
+      console.log("Fetching participants for event:", event?.id);
+      const { data: winners } = await supabase
+        .from('lottery_winners')
+        .select('participant_id')
+        .eq('event_id', event.id);
 
-      if (error) throw error;
-      return data;
+      const winnerIds = winners?.map(w => w.participant_id) || [];
+      
+      let query = supabase
+        .from('participants')
+        .select('id, nickname, email, attendance_mode')
+        .eq('event_id', event.id);
+
+      // Only add the not.in filter if there are winners
+      if (winnerIds.length > 0) {
+        query = query.not('id', 'in', `(${winnerIds.join(',')})`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error("Error fetching participants:", error);
+        return [];
+      }
+
+      console.log("Eligible participants:", data);
+      return data || [];
     },
   });
 
@@ -46,13 +68,17 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     queryKey: ["survey", event?.id],
     enabled: !!event?.id,
     queryFn: async () => {
+      console.log("Fetching survey for event:", event?.id);
       const { data, error } = await supabase
         .from("surveys")
         .select("*")
         .eq("event_id", event.id)
         .single();
 
-      if (error && error.code !== "PGRST116") throw error;
+      if (error && error.code !== "PGRST116") {
+        console.error("Error fetching survey:", error);
+        return null;
+      }
       return data;
     },
   });
@@ -61,14 +87,18 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     queryKey: ["schedules", event?.id],
     enabled: !!event?.id,
     queryFn: async () => {
+      console.log("Fetching schedules for event:", event?.id);
       const { data, error } = await supabase
         .from("event_schedules")
         .select("*")
         .eq("event_id", event.id)
         .order("start_time", { ascending: true });
 
-      if (error) throw error;
-      return data;
+      if (error) {
+        console.error("Error fetching schedules:", error);
+        return [];
+      }
+      return data || [];
     },
   });
 
