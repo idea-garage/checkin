@@ -35,7 +35,7 @@ export const ParticipantActions = ({
         <Clipboard className="mr-2 h-4 w-4" />
         Copy Registration Link
       </Button>
-      {eventMode !== 'online' && (
+      {eventMode !== 'inperson' && (
         <Button
           variant="outline"
           onClick={() => navigate(generateEventUrl(teamSlug, eventSlug, 'public', 'lottery').replace(window.location.origin, ''))}

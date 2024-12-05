@@ -16,7 +16,7 @@ interface LotteryWinnerListProps {
 
 export const LotteryWinnerList = ({ winners, isStaff }: LotteryWinnerListProps) => {
   const getAttendanceIcon = (mode: string) => {
-    return mode === 'online' ? (
+    return mode === 'inperson' ? (
       <Globe className="h-4 w-4" />
     ) : (
       <MapPin className="h-4 w-4" />
@@ -49,7 +49,7 @@ export const LotteryWinnerList = ({ winners, isStaff }: LotteryWinnerListProps) 
             <div className="flex items-center gap-2 text-muted-foreground">
               {getAttendanceIcon(winner.participants?.attendance_mode)}
               <span className="text-sm">
-                {winner.participants?.attendance_mode === 'online' ? 'Online' : 'In Person'}
+                {winner.participants?.attendance_mode === 'inperson' ? 'inperson' : 'In Person'}
               </span>
             </div>
           </div>

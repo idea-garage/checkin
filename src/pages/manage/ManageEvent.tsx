@@ -72,7 +72,7 @@ const ManageEvent = () => {
   }
 
   // Calculate whether to show broadcast URL (15 minutes before event)
-  const showBroadcast = event && (event.mode === 'online' || event.mode === 'hybrid') && (() => {
+  const showBroadcast = event && (event.mode === 'inperson' || event.mode === 'hybrid') && (() => {
     const eventDateTime = new Date(`${event.date}T${event.time}`);
     const now = new Date();
     const diffMinutes = (eventDateTime.getTime() - now.getTime()) / (1000 * 60);

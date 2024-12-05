@@ -22,14 +22,14 @@ export const AttendanceSelector = ({ value, onChange }: AttendanceSelectorProps)
       </Button>
       <Button
         type="button"
-        onClick={() => onChange("online")}
-        variant={value === "online" ? "default" : "outline"}
+        onClick={() => onChange("inperson")}
+        variant={value === "inperson" ? "default" : "outline"}
         className={cn(
           "h-9 px-6",
-          value === "online" ? "bg-[#22C55E] hover:bg-[#16A34A]" : "bg-muted/50"
+          value === "inperson" ? "bg-[#22C55E] hover:bg-[#16A34A]" : "bg-muted/50"
         )}
       >
-        Online
+        inperson
       </Button>
     </div>
   );

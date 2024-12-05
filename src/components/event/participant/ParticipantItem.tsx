@@ -35,7 +35,7 @@ export const ParticipantItem = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="inperson">In Person</SelectItem>
-              <SelectItem value="online">Online</SelectItem>
+              <SelectItem value="inperson">inperson</SelectItem>
             </SelectContent>
           </Select>
         )}
