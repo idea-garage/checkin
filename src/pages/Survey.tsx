@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Survey = () => {
   const { teamSlug, slug } = useParams();
-  const { event, survey } = useEventQueries(teamSlug!, slug!);
+  const { event, survey } = useEventQueries(teamSlug, slug);
   const { toast } = useToast();
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");

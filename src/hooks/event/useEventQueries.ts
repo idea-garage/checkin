@@ -1,9 +1,10 @@
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 
-export const useEventQueries = (teamSlug: string, eventSlug: string) => {
+export const useEventQueries = (teamSlug: string | undefined, eventSlug: string | undefined) => {
   const { data: event, isLoading: isLoadingEvent } = useQuery({
     queryKey: ["event", teamSlug, eventSlug],
+    enabled: !!teamSlug && !!eventSlug,
     queryFn: async () => {
       console.log("Fetching event details for:", teamSlug, eventSlug);
       const { data, error } = await supabase
