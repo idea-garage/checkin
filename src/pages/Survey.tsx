@@ -98,7 +98,7 @@ const Survey = () => {
           <Card>
             <CardHeader>
               <CardTitle>{event.name}</CardTitle>
-              <CardTitle>{survey.title}</CardTitle>
+              <CardTitle className="text-sm">{survey.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
