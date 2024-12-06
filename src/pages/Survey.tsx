@@ -97,7 +97,8 @@ const Survey = () => {
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader>
-              <CardTitle>{event.name} - Survey</CardTitle>
+              <CardTitle>{event.name}</CardTitle>
+              <CardTitle>{survey.title}</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
