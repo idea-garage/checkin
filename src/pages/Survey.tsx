@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
 import { Navbar } from "@/components/Navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ const Survey = () => {
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,11 +64,12 @@ const Survey = () => {
         description: "Survey submitted successfully!",
       });
 
-      // 3秒待ってからフォームをクリア
+      // 3秒待ってからフォームをクリアし、トップページへ移動
       setTimeout(() => {
         setResponses({});
         setEmail("");
         setNickname("");
+        navigate("/");  // トップページへ移動
       }, 3000);
     } catch (error: any) {
       console.error("Error submitting survey:", error);
