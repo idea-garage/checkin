@@ -70,7 +70,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
-    --input: 217.2 24% 22%; /* Adjusted for better dark mode input visibility */
+    --input: 217.2 24% 22%;
     --ring: 212.7 26.8% 83.9%;
 
     --sidebar-background: 240 5.9% 10%;
@@ -94,11 +94,8 @@
   }
 
   /* Custom styles for dark mode inputs */
-  .dark textarea.bg-background {
-    background-color: hsl(217.2 24% 18%); /* Slightly lighter than single-line inputs */
-  }
-
+  .dark textarea.bg-background,
   .dark input[type="text"].bg-background {
-    background-color: hsl(217.2 24% 22%); /* Slightly darker than textareas */
+    background-color: hsl(217.2 24% 22%);
   }
 }
