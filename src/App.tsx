@@ -55,7 +55,7 @@ const App = () => (
             <Route path="/m/:teamSlug/:slug/participants" element={<ManageParticipants />} />
             <Route path="/m/:teamSlug/:slug/timetable" element={<ManageTimetable />} />
             <Route path="/m/:teamSlug/:slug/lottery" element={<ManageLottery />} />
-            <Route path="/m/:teamSlug/:slug/survey" element={<SurveyList />} />
+            <Route path="/m/:teamSlug/:slug/survey" element={<SurveyList eventId={undefined} />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
