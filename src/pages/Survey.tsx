@@ -37,7 +37,7 @@ const Survey = () => {
         .from("participants")
         .insert({
           email,
-          nickname,
+          nickname: 'Survey user',
           event_id: event.id,
         })
         .select()
@@ -47,7 +47,7 @@ const Survey = () => {
 
       // Submit survey responses
       const surveyResponses = Object.entries(responses).map(([questionId, response]) => ({
-        participant_id: participant.id,
+        participant_id: null,
         question_id: questionId,
         response,
       }));
