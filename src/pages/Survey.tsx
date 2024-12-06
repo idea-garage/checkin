@@ -160,6 +160,16 @@ const Survey = () => {
                         }
                       />
                     )}
+                    {question.type === "multiline" && (
+                      <textarea
+                        value={responses[question.id] || ""}
+                        onChange={(e) =>
+                          setResponses({ ...responses, [question.id]: e.target.value })
+                        }
+                        className="w-full p-2 border rounded"
+                        rows={4}
+                      />
+                    )}
                   </div>
                 ))}
 
