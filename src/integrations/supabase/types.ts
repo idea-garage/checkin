@@ -113,6 +113,7 @@ export type Database = {
           name: string
           slug: string
           team_id: string
+          team_slug: string
           time: string
         }
         Insert: {
@@ -128,6 +129,7 @@ export type Database = {
           name: string
           slug: string
           team_id: string
+          team_slug: string
           time: string
         }
         Update: {
@@ -143,6 +145,7 @@ export type Database = {
           name?: string
           slug?: string
           team_id?: string
+          team_slug?: string
           time?: string
         }
         Relationships: [
@@ -160,12 +163,20 @@ export type Database = {
             referencedRelation: "teams"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "events_team_slug_fkey"
+            columns: ["team_slug"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["slug"]
+          },
         ]
       }
       lottery_winners: {
         Row: {
           created_at: string
           event_id: string
+          for_prize: boolean
           id: string
           participant_id: string
           round: number
@@ -173,6 +184,7 @@ export type Database = {
         Insert: {
           created_at?: string
           event_id: string
+          for_prize?: boolean
           id?: string
           participant_id: string
           round: number
@@ -180,6 +192,7 @@ export type Database = {
         Update: {
           created_at?: string
           event_id?: string
+          for_prize?: boolean
           id?: string
           participant_id?: string
           round?: number
@@ -276,6 +289,7 @@ export type Database = {
           created_at: string
           id: string
           options: Json | null
+          order_number: number
           question: string
           survey_id: string
           type: string
@@ -284,6 +298,7 @@ export type Database = {
           created_at?: string
           id?: string
           options?: Json | null
+          order_number?: number
           question: string
           survey_id: string
           type: string
@@ -292,6 +307,7 @@ export type Database = {
           created_at?: string
           id?: string
           options?: Json | null
+          order_number?: number
           question?: string
           survey_id?: string
           type?: string
@@ -310,32 +326,28 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          participant_id: string
+          participant_id: string | null
           question_id: string
-          response: string
+          recorded_at: string
+          response: Json
         }
         Insert: {
           created_at?: string
           id?: string
-          participant_id: string
+          participant_id?: string | null
           question_id: string
-          response: string
+          recorded_at?: string
+          response: Json
         }
         Update: {
           created_at?: string
           id?: string
-          participant_id?: string
+          participant_id?: string | null
           question_id?: string
-          response?: string
+          recorded_at?: string
+          response?: Json
         }
         Relationships: [
-          {
-            foreignKeyName: "survey_responses_participant_id_fkey"
-            columns: ["participant_id"]
-            isOneToOne: false
-            referencedRelation: "participants"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "survey_responses_question_id_fkey"
             columns: ["question_id"]
