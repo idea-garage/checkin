@@ -94,8 +94,8 @@
   }
 
   /* Custom styles for dark mode inputs */
-  .dark textarea.bg-background,
-  .dark input[type="text"].bg-background {
-    background-color: hsl(215 25% 12%);
+  .dark textarea,
+  .dark input[type="text"] {
+    @apply bg-input text-foreground;
   }
 }
