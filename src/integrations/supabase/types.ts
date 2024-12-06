@@ -330,6 +330,7 @@ export type Database = {
           question_id: string
           recorded_at: string
           response: Json
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -338,6 +339,7 @@ export type Database = {
           question_id: string
           recorded_at?: string
           response: Json
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -346,6 +348,7 @@ export type Database = {
           question_id?: string
           recorded_at?: string
           response?: Json
+          user_id?: string | null
         }
         Relationships: [
           {
