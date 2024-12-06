@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navbar() {
   const navigate = useNavigate();

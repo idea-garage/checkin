@@ -83,6 +83,18 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
+  const { data: allEvents, isLoading: isAllEventsLoading } = useQuery({
+    queryKey: ["allEvents"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("events")
+        .select("*");
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -126,6 +138,60 @@ const Dashboard = () => {
                           {format(new Date(event.date), "MMMM d, yyyy")} at{' '}
                           {format(new Date(`2000-01-01T${event.time}`), 'h:mm a')} •{' '}
                           {event.participants?.[0]?.count || 0} participants
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/m/${teamSlug}/${event.slug}/participants`)}
+                        >
+                          <Users className="h-4 w-4 mr-1" />
+                          Manage Event
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/m/${teamSlug}/${event.slug}/details`)}
+                        >
+                          View Details
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5" />
+                All Events
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {isAllEventsLoading ? (
+                <div className="py-4 text-center text-muted-foreground">
+                  Loading all events...
+                </div>
+              ) : allEvents?.length === 0 ? (
+                <div className="py-4 text-center text-muted-foreground">
+                  No events available
+                </div>
+              ) : (
+                <div className="divide-y">
+                  {allEvents?.map((event) => (
+                    <div
+                      key={event.id}
+                      className="py-4 flex items-center justify-between"
+                    >
+                      <div>
+                        <h3 className="font-medium">{event.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          {format(new Date(event.date), "MMMM d, yyyy")} at{' '}
+                          {format(new Date(`2000-01-01T${event.time}`), 'h:mm a')}
                         </p>
                       </div>
                       <div className="flex gap-2">
