@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Survey = () => {
   const { teamSlug, slug } = useParams();
-  const { event, survey, isLoadingEvent } = useEventQueries(teamSlug, slug);
+  const { event, survey } = useEventQueries(teamSlug, slug);
   const { toast } = useToast();
   const [responses, setResponses] = useState<Record<string, string>>({});
   const [email, setEmail] = useState("");
@@ -63,7 +63,7 @@ const Survey = () => {
         description: "Survey submitted successfully!",
       });
 
-      // Clear form after 3 seconds
+      // 3秒待ってからフォームをクリア
       setTimeout(() => {
         setResponses({});
         setEmail("");
@@ -79,7 +79,7 @@ const Survey = () => {
     }
   };
 
-  if (isLoadingEvent || !event || !survey) {
+  if (!event || !survey) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -101,6 +101,7 @@ const Survey = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/*
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="email">Email</Label>
@@ -122,6 +123,7 @@ const Survey = () => {
                     />
                   </div>
                 </div>
+                */}
 
                 {survey.questions?.map((question: any) => (
                   <div key={question.id} className="space-y-2">
