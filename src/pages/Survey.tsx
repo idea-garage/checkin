@@ -62,6 +62,13 @@ const Survey = () => {
         title: "Success",
         description: "Survey submitted successfully!",
       });
+
+      // 3秒待ってからフォームをクリア
+      setTimeout(() => {
+        setResponses({});
+        setEmail("");
+        setNickname("");
+      }, 3000);
     } catch (error: any) {
       console.error("Error submitting survey:", error);
       toast({
@@ -94,6 +101,7 @@ const Survey = () => {
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
+                {/*
                 <div className="space-y-4">
                   <div>
                     <Label htmlFor="email">Email</Label>
@@ -115,6 +123,7 @@ const Survey = () => {
                     />
                   </div>
                 </div>
+                */}
 
                 {survey.questions?.map((question: any) => (
                   <div key={question.id} className="space-y-2">
