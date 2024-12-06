@@ -19,6 +19,7 @@ const Survey = () => {
   const [email, setEmail] = useState("");
   const [nickname, setNickname] = useState("");
   const navigate = useNavigate();
+  const surveyId = 'f6fabaca-6398-4492-baa5-bddf3f7b9dd9';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,16 +47,13 @@ const Survey = () => {
 
       if (participantError) throw participantError;
 
-      // Submit survey responses
-      const surveyResponses = Object.entries(responses).map(([questionId, response]) => ({
-        participant_id: null,
-        question_id: questionId,
-        response,
-      }));
-
       const { error: responsesError } = await supabase
         .from("survey_responses")
-        .insert(surveyResponses);
+        .insert({
+          participant_id: participant.id,
+          event_id: event.id,
+          response: responses
+        });
 
       if (responsesError) throw responsesError;
 
