@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { ManageLayout } from "@/components/manage/ManageLayout";
 import { fetchSurveys, addSurvey } from "@/integrations/supabase/surveyService";
 
-const SurveyList = ({ teamId, ownerId, eventId }) => {
+const SurveyList = ({ eventId }) => {
   const [surveys, setSurveys] = useState([]);
   const [newSurveyTitle, setNewSurveyTitle] = useState('');
 
@@ -19,7 +19,7 @@ const SurveyList = ({ teamId, ownerId, eventId }) => {
   const handleAddSurvey = async () => {
     if (newSurveyTitle.trim() === '') return;
 
-    const data = await addSurvey(newSurveyTitle, teamId);
+    const data = await addSurvey(newSurveyTitle, eventId);
     if (data) {
       setSurveys([...surveys, ...data]);
       setNewSurveyTitle('');
