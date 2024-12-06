@@ -20,8 +20,8 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
             id
           )
         `)
-        .eq("slug", eventSlug)
         .eq("team_slug", teamSlug)
+        .eq("slug", eventSlug)
         .single();
 
       if (error) {
@@ -59,17 +59,27 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
     queryFn: async () => {
       console.log("Fetching survey for event:", event?.id);
       try {
-        const { data, error } = await supabase
+        const { data: surveyData, error: surveyError } = await supabase
           .from("surveys")
-          .select("*")
+          .select(`
+            *,
+            questions:survey_questions(
+              id,
+              question,
+              type,
+              options,
+              order_number
+            )
+          `)
           .eq("event_id", event.id)
           .single();
 
-        if (error && error.code !== "PGRST116") {
-          console.error("Error fetching survey:", error);
+        if (surveyError && surveyError.code !== "PGRST116") {
+          console.error("Error fetching survey:", surveyError);
           return null;
         }
-        return data;
+        console.log("Survey data:", surveyData);
+        return surveyData;
       } catch (error) {
         console.error("Error in survey query:", error);
         return null;

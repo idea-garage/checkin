@@ -73,7 +73,14 @@ const Survey = () => {
   };
 
   if (!event || !survey) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <main className="container py-8">
+          <div className="text-center">Loading...</div>
+        </main>
+      </div>
+    );
   }
 
   return (
