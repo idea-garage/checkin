@@ -36,28 +36,32 @@ const CreateEvent = () => {
     e.preventDefault();
     
     try {
+      // First, get the team information from the user's profile
       const { data: profileData, error: profileError } = await supabase
         .from("profiles")
-        .select("team_id")
+        .select("team_id, teams(slug)")
         .eq("id", user.id)
         .single();
 
       if (profileError) throw profileError;
+      
+      if (!profileData?.teams?.slug) {
+        throw new Error("Team information not found");
+      }
 
       const { data, error } = await supabase
         .from("events")
-        .insert([
-          {
-            name: formData.name,
-            date: formData.date,
-            time: formData.time,
-            description: formData.description,
-            location: formData.location,
-            team_id: profileData.team_id,
-            created_by: user.id,
-            slug: formData.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
-          },
-        ])
+        .insert({
+          name: formData.name,
+          date: formData.date,
+          time: formData.time,
+          description: formData.description,
+          location: formData.location,
+          team_id: profileData.team_id,
+          team_slug: profileData.teams.slug,
+          created_by: user.id,
+          slug: formData.slug.toLowerCase().replace(/[^a-z0-9-]/g, '-'),
+        })
         .select()
         .single();
 
@@ -80,6 +84,7 @@ const CreateEvent = () => {
 
       navigate("/dashboard");
     } catch (error: any) {
+      console.error("Error creating event:", error);
       toast({
         title: "Error",
         description: error.message,
