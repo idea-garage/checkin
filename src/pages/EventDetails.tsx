@@ -6,6 +6,7 @@ import { EventTimer } from "@/components/event/EventTimer";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useEventQueries } from "@/hooks/event/useEventQueries";
+import { Button } from "@/components/ui/button";
 
 const EventDetails = () => {
   const { teamSlug, slug } = useParams();
@@ -85,6 +86,15 @@ const EventDetails = () => {
               broadcastUrl={event.broadcast_url}
               showBroadcast={!!showBroadcast}
             />
+            <div className="mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate(`/e/${slug}/${teamSlug}`)}
+              >
+                User Page
+              </Button>
+            </div>
           </div>
         </div>
       </main>
