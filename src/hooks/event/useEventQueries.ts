@@ -10,7 +10,7 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
         .from("events")
         .select(`
           *,
-          team:teams(
+          team:teams!events_team_id_fkey(
             id,
             name,
             slug,
@@ -21,10 +21,13 @@ export const useEventQueries = (teamSlug: string, eventSlug: string) => {
           )
         `)
         .eq("slug", eventSlug)
-        .eq("teams.slug", teamSlug)
+        .eq("team_slug", teamSlug)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching event:", error);
+        throw error;
+      }
       console.log("Event data:", data);
       return data;
     },
