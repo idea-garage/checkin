@@ -80,11 +80,14 @@ export const EventControls = ({
         <Button variant="outline" onClick={copyLink}>
           {showCopied ? "Copied!" : "Copy Event Link"}
         </Button>
-        <Input
-          value={`${window.location.origin}/e/${teamSlug}/${eventSlug}`}
-          readOnly
-          className="flex-1"
-        />
+        <a
+          href={`${window.location.origin}/e/${teamSlug}/${eventSlug}`}
+          className="flex-1 text-blue-500 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {`${window.location.origin}/e/${teamSlug}/${eventSlug}`}
+        </a>
       </div>
     </div>
   );
