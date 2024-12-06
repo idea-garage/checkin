@@ -48,7 +48,10 @@ const App = () => (
               element={<Survey />} 
             />
             {/* Management Routes */}
-            <Route path="/m/:teamSlug/:slug/details" element={<ManageEvent />} />
+            <Route 
+              path="/m/:teamSlug/:slug/details" 
+              element={<ManageEvent />} 
+            />
             <Route path="/m/:teamSlug/:slug/participants" element={<ManageParticipants />} />
             <Route path="/m/:teamSlug/:slug/timetable" element={<ManageTimetable />} />
             <Route path="/m/:teamSlug/:slug/lottery" element={<ManageLottery />} />

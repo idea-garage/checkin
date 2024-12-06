@@ -71,7 +71,6 @@ const ManageEvent = () => {
     );
   }
 
-  // Calculate whether to show broadcast URL (15 minutes before event)
   const showBroadcast = event && (event.mode === 'inperson' || event.mode === 'hybrid') && (() => {
     const eventDateTime = new Date(`${event.date}T${event.time}`);
     const now = new Date();
