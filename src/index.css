@@ -95,7 +95,8 @@
 
   /* Custom styles for dark mode inputs */
   .dark textarea,
-  .dark input[type="text"] {
-    @apply bg-input text-foreground;
+  .dark input[type="text"],
+  .dark input[type="email"] {
+    @apply bg-input text-foreground border-input;
   }
 }
