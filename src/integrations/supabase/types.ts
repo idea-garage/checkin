@@ -325,32 +325,42 @@ export type Database = {
       survey_responses: {
         Row: {
           created_at: string
+          event_id: string | null
           id: string
           participant_id: string | null
-          question_id: string
+          question_id: string | null
           recorded_at: string
           response: Json
           user_id: string | null
         }
         Insert: {
           created_at?: string
+          event_id?: string | null
           id?: string
           participant_id?: string | null
-          question_id: string
+          question_id?: string | null
           recorded_at?: string
           response: Json
           user_id?: string | null
         }
         Update: {
           created_at?: string
+          event_id?: string | null
           id?: string
           participant_id?: string | null
-          question_id?: string
+          question_id?: string | null
           recorded_at?: string
           response?: Json
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "survey_responses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "survey_responses_question_id_fkey"
             columns: ["question_id"]

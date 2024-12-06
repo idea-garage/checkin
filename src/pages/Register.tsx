@@ -86,9 +86,9 @@ const Register = () => {
       <Navbar />
       <main className="container py-8">
         <div className="max-w-md mx-auto">
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
-              <CardTitle>Create an account</CardTitle>
+              <CardTitle className="text-2xl font-semibold">Create an account</CardTitle>
               <CardDescription>
                 Get started with Checkin by creating your account
               </CardDescription>
@@ -96,7 +96,27 @@ const Register = () => {
             <CardContent>
               <Auth
                 supabaseClient={supabase}
-                appearance={{ theme: ThemeSupa }}
+                appearance={{
+                  theme: ThemeSupa,
+                  variables: {
+                    default: {
+                      colors: {
+                        brand: '#4F46E5',
+                        brandAccent: '#4338CA',
+                        inputBackground: 'white',
+                        inputText: '#1F2937',
+                        inputBorder: '#E5E7EB',
+                        inputLabelText: '#6B7280',
+                        inputPlaceholder: '#9CA3AF',
+                      },
+                    },
+                  },
+                  className: {
+                    input: 'bg-white border-gray-200',
+                    label: 'text-gray-600',
+                    button: 'bg-indigo-600 hover:bg-indigo-700',
+                  },
+                }}
                 providers={[]}
                 view="sign_up"
                 theme="light"
