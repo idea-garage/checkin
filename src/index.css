@@ -70,7 +70,7 @@
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
-    --input: 217.2 24% 22%;
+    --input: 215 25% 12%;
     --ring: 212.7 26.8% 83.9%;
 
     --sidebar-background: 240 5.9% 10%;
@@ -96,6 +96,6 @@
   /* Custom styles for dark mode inputs */
   .dark textarea.bg-background,
   .dark input[type="text"].bg-background {
-    background-color: hsl(217.2 24% 22%);
+    background-color: hsl(215 25% 12%);
   }
 }
