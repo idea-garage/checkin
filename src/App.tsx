@@ -43,7 +43,10 @@ const App = () => (
             <Route path="/e/:teamSlug/:slug/details" element={<EventDetails />} />
             <Route path="/e/:teamSlug/:slug/timetable" element={<Timetable />} />
             <Route path="/e/:teamSlug/:slug/lottery" element={<Lottery />} />
-            <Route path="/e/:teamSlug/:slug/survey" element={<Survey />} />
+            <Route 
+              path="/e/:teamSlug/:slug/survey" 
+              element={<Survey />} 
+            />
             {/* Management Routes */}
             <Route path="/m/:teamSlug/:slug/details" element={<ManageEvent />} />
             <Route path="/m/:teamSlug/:slug/participants" element={<ManageParticipants />} />
