@@ -10,17 +10,29 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useEventData } from "@/hooks/event/useEventData";
 
 const Survey = () => {
-  const { eventId } = useParams();
+  const { teamSlug, slug } = useParams();
+  console.log('teamSlug', teamSlug);
+  console.log('eventSlug', slug);
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [participantId, setParticipantId] = useState<string | null>(null);
 
+  const { eventData, loading: loadingEventData, error: eventError } = useEventData(teamSlug, slug);
+
+  const eventId = eventData?.id;
+
+  console.log('eventId', eventId);
+
   const { data: survey, isLoading: isLoadingSurvey } = useQuery({
     queryKey: ["survey", eventId],
     queryFn: async () => {
+      if (!eventId) throw new Error("Event ID is undefined");
+
       const { data: surveyData, error: surveyError } = await supabase
         .from("surveys")
         .select("*")
@@ -42,6 +54,7 @@ const Survey = () => {
         questions,
       };
     },
+    enabled: !!eventId,
   });
 
   const submitResponseMutation = useMutation({
@@ -62,7 +75,13 @@ const Survey = () => {
         title: "Survey Submitted",
         description: "Thank you for your feedback!",
       });
-      navigate(`/e/${eventId}`);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error Submitting Survey",
+        description: "An error occurred while submitting the survey.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -76,9 +95,12 @@ const Survey = () => {
     }));
 
     submitResponseMutation.mutate(responses);
+
+    // フォーム送信後に回答をクリア
+    setAnswers({});
   };
 
-  if (isLoadingSurvey) {
+  if (loadingEventData || isLoadingSurvey) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -91,7 +113,7 @@ const Survey = () => {
     );
   }
 
-  if (!survey) {
+  if (eventError || !survey) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -99,7 +121,7 @@ const Survey = () => {
           <Card>
             <CardContent className="py-8">
               <p className="text-center text-muted-foreground">
-                No survey found for this event.
+                {eventError ? "Error loading event data." : "No survey found for this event."}
               </p>
             </CardContent>
           </Card>
@@ -121,7 +143,7 @@ const Survey = () => {
               <form onSubmit={handleSubmit} className="space-y-8">
                 {survey.questions.map((question: any) => (
                   <div key={question.id} className="space-y-4">
-                    <h2 className="text-xl font-semibold">{question.question}</h2>
+                    <h2 className="text-md font-semibold">{question.question}</h2>
                     {question.type === "multiple-choice" && Array.isArray(question.options) ? (
                       <RadioGroup
                         onValueChange={(value) =>
@@ -136,9 +158,22 @@ const Survey = () => {
                           </div>
                         ))}
                       </RadioGroup>
+                    ) : question.type === "text" ? (
+                      <input
+                        type="text"
+                        placeholder=""
+                        value={answers[question.id] || ""}
+                        onChange={(e) =>
+                          setAnswers((prev) => ({
+                            ...prev,
+                            [question.id]: e.target.value,
+                          }))
+                        }
+                        className="w-full border rounded p-2"
+                      />
                     ) : (
                       <Textarea
-                        placeholder="Type your answer here..."
+                        placeholder=""
                         value={answers[question.id] || ""}
                         onChange={(e) =>
                           setAnswers((prev) => ({

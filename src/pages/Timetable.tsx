@@ -2,16 +2,16 @@ import { Navbar } from "@/components/Navbar";
 import { useParams } from "react-router-dom";
 import { EventHeader } from "@/components/event/EventHeader";
 import { Timetable } from "@/components/event/Timetable";
-import { useEventQueries } from "@/hooks/event/useEventQueries";
+import { useEventData } from "@/hooks/event/useEventData";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 
 const TimetablePage = () => {
   const { teamSlug, slug } = useParams();
   const navigate = useNavigate();
-  const { event, isLoadingEvent, schedules } = useEventQueries(teamSlug!, slug!);
+  const { eventData, loading, error } = useEventData(teamSlug, slug);
 
-  if (isLoadingEvent) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -22,12 +22,12 @@ const TimetablePage = () => {
     );
   }
 
-  if (!event) {
+  if (error || !eventData) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
         <main className="container py-8">
-          <div className="text-center">Event not found</div>
+          <div className="text-center">{error || "Event not found"}</div>
         </main>
       </div>
     );
@@ -39,10 +39,10 @@ const TimetablePage = () => {
       <main className="container py-8">
         <div className="max-w-3xl mx-auto">
           <EventHeader
-            name={event.name}
-            date={event.date}
-            time={event.time}
-            location={event.location}
+            name={eventData.name}
+            date={eventData.date}
+            time={eventData.time}
+            location={eventData.location}
           />
 
           <Tabs defaultValue="timetable" className="mb-8">
@@ -69,7 +69,7 @@ const TimetablePage = () => {
             </TabsList>
           </Tabs>
 
-          <Timetable items={schedules || []} />
+          <Timetable items={eventData.schedules || []} />
         </div>
       </main>
     </div>
