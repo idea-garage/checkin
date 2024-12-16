@@ -1,8 +1,15 @@
+# Editor
+.vscode
+*.code-workspace
+
 # Environment
 .env
 .env.local
 .lock
-*.code-workspace
+
+# Supabase
+supabase/.temp
+supabase/seed.sql
 
 # Logs
 logs
@@ -28,3 +35,27 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Build directories
+build/
+
+# Coverage reports
+coverage/
+
+# MacOS system files
+.DS_Store
+
+# Temporary files
+*.tmp
+*.temp
+
+# IDE specific files
+*.iml
+*.ipr
+*.iws
+
+# TypeScript build artifacts
+*.tsbuildinfo
+
+# Vite cache
+.vite/
