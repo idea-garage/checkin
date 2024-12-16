@@ -11,6 +11,9 @@
 supabase/.temp
 supabase/seed.sql
 
+# Supabase client connection information
+src/integrations/supabase/client.ts
+
 # Logs
 logs
 *.log
