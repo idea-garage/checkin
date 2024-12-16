@@ -103,7 +103,7 @@ const Register = () => {
                       colors: {
                         brand: '#4F46E5',
                         brandAccent: '#4338CA',
-                        inputBackground: 'white',
+                        inputBackground: '#FFFFFF',
                         inputText: '#1F2937',
                         inputBorder: '#E5E7EB',
                         inputLabelText: '#6B7280',
@@ -112,9 +112,9 @@ const Register = () => {
                     },
                   },
                   className: {
-                    input: 'bg-white border-gray-200',
+                    input: 'bg-white border-gray-300 text-gray-800',
                     label: 'text-gray-600',
-                    button: 'bg-indigo-600 hover:bg-indigo-700',
+                    button: 'bg-indigo-600 hover:bg-indigo-700 text-white',
                   },
                 }}
                 providers={[]}
